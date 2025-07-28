@@ -30,6 +30,9 @@ public class Passenger {
     @Column(nullable = false, name = "email", length = 80, unique = true)
     private String email;
 
+    @Column(nullable = false, name = "password", length = 60)
+    private String password;
+
     @Column(nullable = false, name = "country", length = 50)
     private String country;
 

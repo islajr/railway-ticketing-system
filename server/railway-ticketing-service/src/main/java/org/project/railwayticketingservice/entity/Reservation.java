@@ -18,7 +18,7 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private Long id;
+    private String id;
 
     @ManyToOne
     private Passenger passenger;

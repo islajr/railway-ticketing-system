@@ -39,7 +39,7 @@ public class Passenger {
     @Column(nullable = false, name = "phone", length = 15)
     private String phone;
 
-    @OneToMany(mappedBy = "reservation")
+    @OneToMany(mappedBy = "passenger")
     private List<Reservation> reservations;
 
     @CreationTimestamp

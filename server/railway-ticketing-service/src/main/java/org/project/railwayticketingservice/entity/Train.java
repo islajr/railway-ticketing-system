@@ -24,7 +24,7 @@ public class Train {
     @Column(nullable = false, unique = true, name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(mappedBy = "train")
     List<Schedule> schedules;
 
     @Column(nullable = false, name = "capacity")

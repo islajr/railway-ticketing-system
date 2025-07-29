@@ -31,6 +31,7 @@ public class AuthService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
 
@@ -51,8 +52,17 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 
-        if (authentication.isAuthenticated()) {
-            return ResponseEntity.ok(new LoginPassengerResponse());
+        Passenger passenger = passengerRepository.findPassengerByEmail(request.email());
+
+        if (passenger != null) {
+
+            if (authentication.isAuthenticated()) {
+                String email = passenger.getEmail();
+                return ResponseEntity.ok(new LoginPassengerResponse(
+                        jwtService.generateToken(email),
+                        jwtService.generateRefreshToken(email)
+                        ));
+            }
         }
 
         throw new BadCredentialsException("Invalid email or password");
@@ -77,8 +87,13 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
 
-        if (authentication.isAuthenticated()) {
-            return ResponseEntity.ok(new LoginAdminResponse());
+        Admin admin = adminRepository.findAdminByEmail(request.email());
+
+        if (admin != null) {
+
+            if (authentication.isAuthenticated()) {
+                return ResponseEntity.ok(new LoginAdminResponse());
+            }
         }
 
         throw new BadCredentialsException("Invalid email or password");

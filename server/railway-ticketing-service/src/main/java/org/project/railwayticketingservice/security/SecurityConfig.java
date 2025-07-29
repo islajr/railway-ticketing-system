@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.security;
 
 import lombok.RequiredArgsConstructor;
+import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,14 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> {
-                    request.requestMatchers(
-                            "/api/v1/rts/auth/**"   // all login and register endpoints
-                    );
-                })
+                .authorizeHttpRequests(request -> request.requestMatchers(
+                        "/api/v1/rts/auth/**"   // all login and register endpoints
+                ).permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .build();
@@ -41,7 +44,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authManager() {
         return authentication -> {
-            UserDetails userDetails = customUserDetailsService.loadByUsername(authentication.getName());
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(authentication.getName());
             if (passwordEncoder().matches(userDetails.getPassword(), authentication.getCredentials().toString())) {
                 throw new BadCredentialsException("Incorrect password!");
             }

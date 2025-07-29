@@ -39,8 +39,8 @@ public record RegisterPassengerRequest(
     String phone
 ) {
 
-    public Passenger toPassenger() {
-        return Passenger.builder()
+    public  Passenger toPassenger() {
+       return Passenger.builder()
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)

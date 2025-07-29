@@ -18,6 +18,10 @@ public class AdminPrincipal implements UserDetails {
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
+    public String getEmail() {
+        return admin.getEmail();
+    }
+
     @Override
     public String getPassword() {
         return admin.getPassword();

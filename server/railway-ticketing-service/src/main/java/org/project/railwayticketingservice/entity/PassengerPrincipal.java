@@ -18,6 +18,10 @@ public class PassengerPrincipal implements UserDetails {
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_PASSENGER"));
     }
 
+    public String getEmail() {
+        return passenger.getEmail();
+    }
+
     @Override
     public String getPassword() {
         return passenger.getPassword();

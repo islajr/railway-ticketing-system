@@ -12,6 +12,7 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerRe
 import org.project.railwayticketingservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,24 +26,24 @@ public class AuthController {
     // passenger endpoints
 
     @PostMapping("/passenger/register")
-    public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
+    public ResponseEntity<RegisterPassengerResponse> registerPassenger(@RequestBody RegisterPassengerRequest request) {
         return authService.registerPassenger(request);
     }
 
     @PostMapping("/passenger/login")
-    public ResponseEntity<LoginPassengerResponse> loginPassenger(LoginPassengerRequest request) {
+    public ResponseEntity<LoginPassengerResponse> loginPassenger(@RequestBody LoginPassengerRequest request) {
         return authService.loginPassenger(request);
     }
 
     // admin endpoints
 
     @PostMapping("/admin/register")
-    public ResponseEntity<RegisterAdminResponse> registerAdmin(RegisterAdminRequest request) {
+    public ResponseEntity<RegisterAdminResponse> registerAdmin(@RequestBody RegisterAdminRequest request) {
         return authService.registerAdmin(request);
     }
 
     @PostMapping("/admin/login")
-    public ResponseEntity<LoginAdminResponse> loginAdmin(LoginAdminRequest request) {
+    public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request) {
         return authService.loginAdmin(request);
     }
 }

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.project.railwayticketingservice.entity.Admin;
 
 public record RegisterAdminRequest(
         @NotNull(message = "please provide a valid firstName")
@@ -27,4 +28,13 @@ public record RegisterAdminRequest(
         @Size(max = 60, message = "password cannot be more than 60 characters")
         String password
 ) {
+
+        public Admin toAdmin() {
+                return Admin.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .email(email)
+                        .password(password)
+                        .build();
+        }
 }

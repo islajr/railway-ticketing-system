@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.project.railwayticketingservice.entity.Passenger;
 
 public record RegisterPassengerRequest(
 
@@ -37,4 +38,15 @@ public record RegisterPassengerRequest(
     @Size(max = 11, message = "please input your phone number in the format: (08023456789)")
     String phone
 ) {
+
+    public Passenger toPassenger() {
+        return Passenger.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .password(password)
+                .country(country)
+                .phone(phone)
+                .build();
+    }
 }

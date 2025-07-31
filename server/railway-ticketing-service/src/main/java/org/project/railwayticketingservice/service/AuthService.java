@@ -92,7 +92,11 @@ public class AuthService {
         if (admin != null) {
 
             if (authentication.isAuthenticated()) {
-                return ResponseEntity.ok(new LoginAdminResponse());
+                String email = admin.getEmail();
+                return ResponseEntity.ok(new LoginAdminResponse(
+                        jwtService.generateToken(email),
+                        jwtService.generateRefreshToken(email)
+                ));
             }
         }
 

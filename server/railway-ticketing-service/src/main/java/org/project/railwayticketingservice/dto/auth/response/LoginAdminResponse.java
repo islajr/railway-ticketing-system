@@ -1,4 +1,10 @@
 package org.project.railwayticketingservice.dto.auth.response;
 
-public record LoginAdminResponse() {
+import lombok.Builder;
+
+@Builder
+public record LoginAdminResponse(
+        String accessToken,
+        String refreshToken
+) {
 }

@@ -11,6 +11,7 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterAdminRespon
 import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerResponse;
 import org.project.railwayticketingservice.entity.Admin;
 import org.project.railwayticketingservice.entity.Passenger;
+import org.project.railwayticketingservice.exception.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class AuthService {
     public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // customize?
+            throw new RtsException(409, "Email already in use");
         }
 
         Passenger passenger = request.toPassenger();
@@ -65,13 +65,13 @@ public class AuthService {
             }
         }
 
-        throw new BadCredentialsException("Invalid email or password");
+        throw new RtsException(400, "Invalid email or password");
     }
 
     public ResponseEntity<RegisterAdminResponse> registerAdmin(RegisterAdminRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use"); // customize?
+            throw new RtsException(409, "Email already in use");
         }
 
         Admin admin = request.toAdmin();
@@ -96,6 +96,6 @@ public class AuthService {
             }
         }
 
-        throw new BadCredentialsException("Invalid email or password");
+        throw new RtsException(400, "Invalid email or password");
     }
 }

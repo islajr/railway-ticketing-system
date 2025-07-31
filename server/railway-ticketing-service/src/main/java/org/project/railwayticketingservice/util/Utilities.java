@@ -4,11 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.project.railwayticketingservice.exception.RtsException;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class Utilities {
                 return scheduleRepository.findSchedulesByDepartureTime(request.time().getLocalDateTime());
             }
             default -> {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filter!");
+                throw new RtsException(400, "Invalid filter!");
             }
         }
     }
@@ -50,7 +49,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(request.origin(), request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!");
                     }
                 }
 
@@ -64,7 +63,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(request.origin(), request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!");
                     }
                 }
             }
@@ -77,12 +76,12 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByDestinationAndDepartureTime(request.origin(), request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!");
                     }
                 }
             }
             default -> {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filter!");
+                throw new RtsException(400, "Invalid filter!");
             }
         }
     }

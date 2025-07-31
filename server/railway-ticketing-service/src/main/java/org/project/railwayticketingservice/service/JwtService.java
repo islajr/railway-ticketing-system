@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
+import org.project.railwayticketingservice.exception.RtsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerErrorException;
@@ -58,7 +59,7 @@ public class JwtService {
                     .signWith(generateKey())
                     .compact();
         } catch (JwtException e) {
-            throw new ServerErrorException("failed to generate token", e); // customize later?
+            throw new RtsException(500, "failed to generate token");
         }
 
     }
@@ -75,7 +76,7 @@ public class JwtService {
                     .signWith(generateKey())
                     .compact();
         } catch (JwtException e) {
-            throw new ServerErrorException("failed to generate refresh token", e);  // customize later?
+            throw new RtsException(500, "failed to generate refresh token");
         }
     }
 
@@ -88,7 +89,7 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (JwtException e) {
-            throw new RuntimeException("this is an invalid token"); // customize later?
+            throw new RtsException(401, "this is an invalid token");
         }
     }
 

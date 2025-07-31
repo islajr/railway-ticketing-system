@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
+import org.project.railwayticketingservice.exception.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
@@ -38,13 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
         final String AUTH_PREFIX = "Bearer ";
         String token = null;
         String email = null;
-        String url = request.getRequestURI();
-
-        /*if (PUBLIC_URLS.contains(url)){
-            System.out.println("skipping jwt filter for path: " + url);
-            filterChain.doFilter(request, response);
-            return;
-        }*/
 
         if (authHeader != null && authHeader.startsWith(AUTH_PREFIX)) {
             token = authHeader.substring(AUTH_PREFIX.length());
@@ -54,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // check if token has been disallowed
         if (!tokenService.isTokenAllowed(token)) {
             System.out.println("blacklisting token!");
-            throw new BadRequestException("expired or disallowed token!"); // customize?
+            throw new RtsException(401, "expired or disallowed token!");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -78,11 +72,11 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } else
-                throw new UsernameNotFoundException("no such user!");   // customize later?
+                throw new RtsException(404, "no such user!");
 
         } else {
             if (token != null)
-                throw new BadRequestException("invalid token!");    // customize?
+                throw new RtsException(401, "invalid token!");
         }
 
         filterChain.doFilter(request, response);

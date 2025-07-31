@@ -7,6 +7,7 @@ import org.project.railwayticketingservice.dto.app.request.ScheduleCreationReque
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.exception.RtsException;
 import org.project.railwayticketingservice.repository.*;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -40,10 +40,10 @@ public class AppService {
                 seat.setReserved(true);
                 scheduleSeatRepository.save(seat);
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat is already taken!");    // customize?
+                throw new RtsException(409, "Seat is already taken!");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat not found!");   // seat does not exist.
+            throw new RtsException(404, "Seat not found!");   // seat does not exist.
         }
 
         Reservation reservation = Reservation.builder()
@@ -83,7 +83,7 @@ public class AppService {
                             .build()
             );
 
-        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found!");
+        } throw new RtsException(404, "Reservation not found!");
     }
 
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
@@ -105,7 +105,7 @@ public class AppService {
                                     .build())
                             .toList()
             );
-        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservations not found!");
+        } throw new RtsException(404, "Reservations not found!") ;
     }
 
     public ResponseStatus deleteReservation(String id) {
@@ -116,7 +116,7 @@ public class AppService {
         if (reservation != null) {
             reservationRepository.delete(reservation);
             // return something? idk.
-        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found!");
+        } throw new RtsException(404, "Reservation not found!");
     }
 
     public ResponseStatus deleteAllReservations() {
@@ -127,7 +127,7 @@ public class AppService {
         if (!reservations.isEmpty()) {
             reservationRepository.deleteAll(reservations);
             // return something? idk.
-        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservations not found!");
+        } throw new RtsException(404, "Reservations not found!");
     }
 
     public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
@@ -141,7 +141,7 @@ public class AppService {
                 if (!filter1.equals("null")) {
                     schedules = utilities.getSchedules(filter1, request);
                 } else {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filters cannot be null!");
+                    throw new RtsException(400, "Filters cannot be null!");
                 }
 
             } else {
@@ -196,6 +196,6 @@ public class AppService {
             // return something?
 
 
-        } throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule creation failed!\nNo such train!");
+        } throw new RtsException(400, "Schedule creation failed!\nNo such train!");
     }
 }

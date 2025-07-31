@@ -26,6 +26,9 @@ public class Reservation {
     @OneToOne
     Schedule schedule;
 
+    @OneToOne
+    ScheduleSeat scheduleSeat;
+
     @CreationTimestamp
     LocalDateTime createdAt;
 

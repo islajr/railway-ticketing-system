@@ -28,7 +28,7 @@ public class Train {
     List<Schedule> schedules;
 
     @Column(nullable = false, name = "capacity")
-    Long capacity;
+    Long capacity;  // 1040-seater, A - Z (26), 40 places. 26 cars. 40 seats per car. each car bears an alphabet
 
     @CreationTimestamp
     LocalDateTime createdAt;

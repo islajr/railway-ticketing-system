@@ -7,6 +7,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -22,25 +25,35 @@ public class Schedule {
     private String id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    Train train;
+    private Train train;
+
+    @OneToMany
+    private List<ScheduleSeat> seats;
 
     // capacity and seat selection
+    @Column(nullable = false, name = "current_capacity")
+    private Long currentCapacity;   // reduces with each successful reservation
+
+    @Column(nullable = false, name = "is_full")
+    private boolean isFull;
 
     @Column(nullable = false, name = "departure_time")
-    LocalDateTime departureTime;
+    private LocalDateTime departureTime;
 
     @Column(nullable = false, name = "arrival_time")
-    LocalDateTime arrivalTime;
+    private LocalDateTime arrivalTime;
 
     @Column(nullable = false, name = "origin")
-    String origin;
+    private String origin;
 
     @Column(nullable = false, name = "destination")
-    String destination;
+    private String destination;
 
     @CreationTimestamp
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     LocalDateTime updatedAt;
+
+    // cache to store
 }

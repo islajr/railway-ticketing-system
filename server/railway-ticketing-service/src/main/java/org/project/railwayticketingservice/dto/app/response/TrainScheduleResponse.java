@@ -1,10 +1,21 @@
 package org.project.railwayticketingservice.dto.app.response;
 
+import lombok.Builder;
+import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.project.railwayticketingservice.entity.Time;
+
+import java.util.List;
+
+@Builder
 public record TrainScheduleResponse(
+    String scheduleId,
     String train,
+    List<ScheduleSeat> availableSeats,
+    Long currentCapacity,
+    boolean isFull,
     String origin,
     String destination,
-    String departureTime,
-    String arrivalTime
+    Time departureTime,
+    Time arrivalTime
 ) {
 }

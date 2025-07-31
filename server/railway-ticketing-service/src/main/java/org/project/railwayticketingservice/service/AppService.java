@@ -3,13 +3,11 @@ package org.project.railwayticketingservice.service;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
+import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
-import org.project.railwayticketingservice.repository.PassengerRepository;
-import org.project.railwayticketingservice.repository.ReservationRepository;
-import org.project.railwayticketingservice.repository.ScheduleRepository;
-import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
+import org.project.railwayticketingservice.repository.*;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +26,7 @@ public class AppService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSeatRepository scheduleSeatRepository;
     private final ReservationRepository reservationRepository;
+    private final TrainRepository trainRepository;
     private final Utilities utilities;
 
     public ResponseEntity<ReservationResponse> createReservation(NewReservationRequest request) {
@@ -170,5 +169,33 @@ public class AppService {
                         )
                         .toList()
         );
+    }
+
+    // admin-specific method
+    public ResponseStatus createSchedule(ScheduleCreationRequest request) {
+        Train train = trainRepository.findTrainByName(request.train());
+
+        if (train != null) {
+            Schedule schedule = Schedule.builder()
+                    .train(train)
+                    .currentCapacity(train.getCapacity())
+                    .isFull(false)
+                    .origin(request.origin())
+                    .destination(request.destination())
+                    .departureTime(request.departure().getLocalDateTime())
+                    .arrivalTime(request.arrival().getLocalDateTime())
+                    .build();
+
+            scheduleRepository.save(schedule);
+            System.out.println("schedule successfully created");
+
+            // generating seats for schedule
+            utilities.generateSeatsForSchedule(schedule);
+            System.out.println("seats generated");
+
+            // return something?
+
+
+        } throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Schedule creation failed!\nNo such train!");
     }
 }

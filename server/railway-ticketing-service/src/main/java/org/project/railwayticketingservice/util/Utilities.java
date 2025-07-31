@@ -3,11 +3,14 @@ package org.project.railwayticketingservice.util;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.entity.Schedule;
+import org.project.railwayticketingservice.entity.ScheduleSeat;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
+import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -15,6 +18,7 @@ import java.util.List;
 public class Utilities {
 
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleSeatRepository scheduleSeatRepository;
 
     public List<Schedule> getSchedules(String filter, GetTrainScheduleRequest request){
 
@@ -82,5 +86,28 @@ public class Utilities {
             }
         }
     }
+
+    public void generateSeatsForSchedule(Schedule schedule) {
+        List<ScheduleSeat> seats = new ArrayList<>();
+
+        for (char row = 'A'; row <= 'Z'; row++) {
+            for (int i = 1; i <= 40; i++) {
+                if (seats.size() >= 1044)
+                    break;
+                /* ... */
+                String label = row + String.valueOf(i);
+                ScheduleSeat seat = new ScheduleSeat();
+                seat.setLabel(label);
+                seat.setReserved(false);
+                seat.setSchedule(schedule);
+                seat.setReservation(null);  // since seat is unoccupied for now.
+                seats.add(seat);
+            }
+        }
+
+        schedule.setSeats(seats);
+        scheduleSeatRepository.saveAll(seats);
+    }
+
 
 }

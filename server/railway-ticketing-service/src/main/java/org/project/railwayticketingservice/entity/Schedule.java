@@ -32,6 +32,12 @@ public class Schedule {
     @Column(nullable = false, name = "arrival_time")
     LocalDateTime arrivalTime;
 
+    @Column(nullable = false, name = "origin")
+    String origin;
+
+    @Column(nullable = false, name = "destination")
+    String destination;
+
     @CreationTimestamp
     LocalDateTime createdAt;
 

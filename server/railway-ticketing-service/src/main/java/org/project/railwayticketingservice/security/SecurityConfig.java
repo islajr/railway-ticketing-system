@@ -38,7 +38,7 @@ public class SecurityConfig {
                 ).permitAll()
                         .requestMatchers(
                                 "/api/v1/rts/app/schedule/new"
-                        ).hasRole("ROLE_ADMIN")
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)

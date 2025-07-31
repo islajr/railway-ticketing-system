@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -43,7 +44,11 @@ public class AppController {
     }
 
     @GetMapping("/schedule/search")
-    public ResponseEntity<List<TrainScheduleResponse>> searchTrainSchedules(@RequestParam String filter) {
-        return appService.getTrainSchedules(filter);
+    public ResponseEntity<List<TrainScheduleResponse>> searchTrainSchedules(
+            @RequestParam String filter1,
+            @RequestParam(required = false, defaultValue = "null") String filter2,
+            @RequestParam(required = false, defaultValue = "null") String filter3,
+            GetTrainScheduleRequest request) {
+        return appService.getTrainSchedules(filter1, filter2, filter3, request);
     }
 }

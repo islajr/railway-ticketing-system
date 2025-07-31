@@ -1,34 +1,174 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
+import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.repository.PassengerRepository;
+import org.project.railwayticketingservice.repository.ReservationRepository;
+import org.project.railwayticketingservice.repository.ScheduleRepository;
+import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
+import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AppService {
+
+    private final PassengerRepository passengerRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ScheduleSeatRepository scheduleSeatRepository;
+    private final ReservationRepository reservationRepository;
+    private final Utilities utilities;
+
     public ResponseEntity<ReservationResponse> createReservation(NewReservationRequest request) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Passenger passenger = passengerRepository.findPassengerByEmail(email);
+        Schedule schedule = scheduleRepository.findScheduleById(request.scheduleId());
+        ScheduleSeat seat = scheduleSeatRepository.findByLabel(request.preferredSeat());
+        if (seat != null) {
+            if (!seat.isReserved()) {   // if seat is not reserved
+                seat.setReserved(true);
+                scheduleSeatRepository.save(seat);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat is already taken!");    // customize?
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seat not found!");   // seat does not exist.
+        }
+
+        Reservation reservation = Reservation.builder()
+                .schedule(schedule)
+                .passenger(passenger)
+                .scheduleSeat(seat)
+                .build();
+
+        reservationRepository.save(reservation);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ReservationResponse.builder()
+                    .reservationId(reservation.getId())
+                    .train(reservation.getSchedule().getTrain().getName())
+                    .seatNumber(seat.getLabel())
+                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
+                    .origin(reservation.getSchedule().getOrigin())
+                    .build()
+        );
 
     }
 
     public ResponseEntity<ReservationResponse> getReservation(String id) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Passenger passenger = passengerRepository.findPassengerByEmail(email);
+        Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
+
+        if (reservation != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    ReservationResponse.builder()
+                            .reservationId(reservation.getId())
+                            .train(reservation.getSchedule().getTrain().getName())
+                            .seatNumber(reservation.getScheduleSeat().getLabel())
+                            .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
+                            .origin(reservation.getSchedule().getOrigin())
+                            .build()
+            );
+
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found!");
     }
 
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Passenger passenger = passengerRepository.findPassengerByEmail(email);
+        List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
+
+        if (!reservations.isEmpty()) {
+
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    reservations.stream()
+                            .map(reservation -> ReservationResponse.builder()
+                                    .reservationId(reservation.getId())
+                                    .train(reservation.getSchedule().getTrain().getName())
+                                    .seatNumber(reservation.getScheduleSeat().getLabel())
+                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
+                                    .origin(reservation.getSchedule().getOrigin())
+                                    .build())
+                            .toList()
+            );
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservations not found!");
     }
 
     public ResponseStatus deleteReservation(String id) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Passenger passenger = passengerRepository.findPassengerByEmail(email);
+        Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
+
+        if (reservation != null) {
+            reservationRepository.delete(reservation);
+            // return something? idk.
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found!");
     }
 
     public ResponseStatus deleteAllReservations() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Passenger passenger = passengerRepository.findPassengerByEmail(email);
+        List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
+
+        if (!reservations.isEmpty()) {
+            reservationRepository.deleteAll(reservations);
+            // return something? idk.
+        } throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservations not found!");
     }
 
-    public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter) {
+    public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
+        List<Schedule> schedules;
+
+        if (filter3.equals("null")) {   // if filter3 is null
+
+            // check filter2
+            if (filter2.equals("null")) {   // if filter2 is null
+
+                if (!filter1.equals("null")) {
+                    schedules = utilities.getSchedules(filter1, request);
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Filters cannot be null!");
+                }
+
+            } else {
+                schedules = utilities.getSchedules(filter1, filter2, request);
+            }
+        } else {
+            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(request.origin(), request.destination(), request.time().getLocalDateTime());
+        }
+
+        // convert schedules to proper response DTOs
+        return ResponseEntity.status(HttpStatus.OK).body(
+                schedules.stream()
+                        .map(
+                                schedule -> TrainScheduleResponse.builder()
+                                        .scheduleId(schedule.getId())
+                                        .train(schedule.getTrain().getName())
+                                        .availableSeats(schedule.getSeats())
+                                        .currentCapacity(schedule.getCurrentCapacity())
+                                        .isFull(schedule.isFull())
+                                        .origin(schedule.getOrigin())
+                                        .destination(schedule.getDestination())
+                                        .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
+                                        .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
+                                        .build()
+                        )
+                        .toList()
+        );
     }
 }

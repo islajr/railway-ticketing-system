@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.service;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
+import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
 import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -197,5 +198,19 @@ public class AppService {
 
 
         } throw new RtsException(400, "Schedule creation failed!\nNo such train!");
+    }
+
+    public ResponseStatus createNewTrain(NewTrainRequest newTrainRequest) {
+        if (!trainRepository.existsByName(newTrainRequest.name())) {
+            Train train = Train.builder()
+                    .name(newTrainRequest.name())
+                    .capacity(Long.getLong(newTrainRequest.capacity().strip()))
+                    .schedules(null)    // no schedules for now for new train
+                    .build();
+            trainRepository.save(train);
+            System.out.println("train successfully created");
+            // return something idk
+
+        } throw new RtsException(409, "train name already exists!");
     }
 }

@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
+import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
 import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -20,7 +21,7 @@ public class AppController {
     private final AppService appService;
 
     @PostMapping("/reservation/new")
-    public ResponseEntity<ReservationResponse> createReservation(NewReservationRequest request) {
+    public ResponseEntity<ReservationResponse> createReservation(@RequestBody NewReservationRequest request) {
         return appService.createReservation(request);
     }
 
@@ -49,12 +50,17 @@ public class AppController {
             @RequestParam String filter1,
             @RequestParam(required = false, defaultValue = "null") String filter2,
             @RequestParam(required = false, defaultValue = "null") String filter3,
-            GetTrainScheduleRequest request) {
+            @RequestBody GetTrainScheduleRequest request) {
         return appService.getTrainSchedules(filter1, filter2, filter3, request);
     }
 
     @PostMapping("/schedule/new")
-    public ResponseStatus createSchedule(ScheduleCreationRequest scheduleCreationRequest) {
+    public ResponseStatus createSchedule(@RequestBody ScheduleCreationRequest scheduleCreationRequest) {
         return appService.createSchedule(scheduleCreationRequest);
+    }
+
+    @PostMapping("/train/new")
+    public ResponseStatus createTrain(@RequestBody NewTrainRequest newTrainRequest) {
+        return appService.createNewTrain(newTrainRequest);
     }
 }

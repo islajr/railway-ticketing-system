@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,15 +35,29 @@ public class AppService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Schedule schedule = scheduleRepository.findScheduleById(request.scheduleId());
         ScheduleSeat seat = scheduleSeatRepository.findByLabel(request.preferredSeat());
-        if (seat != null) {
-            if (!seat.isReserved()) {   // if seat is not reserved
-                seat.setReserved(true);
-                scheduleSeatRepository.save(seat);
+
+        // check if the schedule is full anyway
+        if (!schedule.isFull()) {
+
+            // seat availability check
+            if (seat != null) {
+                if (!seat.isReserved()) {   // if seat is not reserved
+                    seat.setReserved(true); // make the seat reserved.
+                    schedule.setCurrentCapacity(schedule.getCurrentCapacity() - 1); // reduce the capacity with each reservation
+
+                    if (schedule.getCurrentCapacity() <= 0) {   // if current capacity hits 0, tell us that schedule is full
+                        schedule.setFull(true);
+                    }
+                    scheduleRepository.save(schedule);
+                    scheduleSeatRepository.save(seat);
+                } else {
+                    throw new RtsException(409, "Seat is already taken!");
+                }
             } else {
-                throw new RtsException(409, "Seat is already taken!");
+                throw new RtsException(404, "Seat not found!");   // seat does not exist.
             }
         } else {
-            throw new RtsException(404, "Seat not found!");   // seat does not exist.
+            throw new RtsException(409, "Schedule is already full!");
         }
 
         Reservation reservation = Reservation.builder()
@@ -200,6 +213,7 @@ public class AppService {
         } throw new RtsException(400, "Schedule creation failed!\nNo such train!");
     }
 
+    // admin-specific method
     public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
         if (!trainRepository.existsByName(newTrainRequest.name())) {
             Train train = Train.builder()

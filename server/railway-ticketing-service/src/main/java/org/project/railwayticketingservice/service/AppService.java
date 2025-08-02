@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -182,7 +183,9 @@ public class AppService {
                                 schedule -> TrainScheduleResponse.builder()
                                         .scheduleId(schedule.getId())
                                         .train(schedule.getTrain().getName())
-                                        .availableSeats(schedule.getSeats())
+                                        .availableSeats(schedule.getEmptySeats().stream()
+                                                .map(ScheduleSeat::getLabel)
+                                                .collect(Collectors.toList()))
                                         .currentCapacity(schedule.getCurrentCapacity())
                                         .isFull(schedule.isFull())
                                         .origin(schedule.getOrigin())
@@ -289,7 +292,9 @@ public class AppService {
                             .destination(schedule.getDestination())
                             .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
                             .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                            .availableSeats(schedule.getSeats())
+                            .availableSeats(schedule.getEmptySeats().stream()
+                                    .map(ScheduleSeat::getLabel)
+                                    .collect(Collectors.toList()))
                             .build()
             );
         } throw new RtsException(404, "Schedule not found!");

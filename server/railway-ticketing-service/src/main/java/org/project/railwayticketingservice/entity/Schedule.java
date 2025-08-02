@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,5 +53,14 @@ public class Schedule {
     @UpdateTimestamp
     LocalDateTime updatedAt;
 
-    // cache to store
+    // get empty seats
+    public List<ScheduleSeat> getEmptySeats() {
+        List<ScheduleSeat> emptySeats = new ArrayList<>();
+        for (ScheduleSeat seat : seats) {
+            if (!seat.isReserved())
+                emptySeats.add(seat);
+        }
+
+        return emptySeats;
+    };
 }

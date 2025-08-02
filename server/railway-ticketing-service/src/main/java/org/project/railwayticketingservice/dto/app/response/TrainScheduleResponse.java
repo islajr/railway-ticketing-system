@@ -10,7 +10,7 @@ import java.util.List;
 public record TrainScheduleResponse(
     String scheduleId,
     String train,
-    List<ScheduleSeat> availableSeats,
+    List<String> availableSeats,
     Long currentCapacity,
     boolean isFull,
     String origin,

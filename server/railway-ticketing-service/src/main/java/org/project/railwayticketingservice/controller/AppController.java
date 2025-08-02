@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.*;
+import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -35,12 +36,12 @@ public class AppController {
     }
 
     @DeleteMapping("/reservation/{id}")
-    public ResponseStatus cancelReservation(@PathVariable String id) {
+    public ResponseEntity<AppResponse> cancelReservation(@PathVariable String id) {
         return appService.deleteReservation(id);
     }
 
     @DeleteMapping("/reservation/all")
-    public ResponseStatus cancelAllReservations() {
+    public ResponseEntity<AppResponse> cancelAllReservations() {
         return appService.deleteAllReservations();
     }
 
@@ -55,7 +56,7 @@ public class AppController {
     }
 
     @PostMapping("/schedule/new")
-    public ResponseStatus createSchedule(@RequestBody ScheduleCreationRequest scheduleCreationRequest) {
+    public ResponseEntity<AppResponse> createSchedule(@RequestBody ScheduleCreationRequest scheduleCreationRequest) {
         return appService.createSchedule(scheduleCreationRequest);
     }
 

@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.*;
+import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,9 +35,15 @@ public class AppService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Schedule schedule = scheduleRepository.findScheduleById(request.scheduleId());
         ScheduleSeat seat = scheduleSeatRepository.findByLabel(request.preferredSeat());
+        Reservation possibleReservation = reservationRepository.findReservationByScheduleAndPassenger(schedule, passenger);
 
         // check if the schedule is full anyway
         if (!schedule.isFull()) {
+
+            // check if passenger already has a reservation for the schedule in question
+            if (possibleReservation != null) {
+                throw new RtsException(409, "Reservation already exists");
+            }
 
             // seat availability check
             if (seat != null) {
@@ -122,25 +128,29 @@ public class AppService {
         } throw new RtsException(404, "Reservations not found!") ;
     }
 
-    public ResponseStatus deleteReservation(String id) {
+    public ResponseEntity<AppResponse> deleteReservation(String id) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
         if (reservation != null) {
             reservationRepository.delete(reservation);
-            // return something? idk.
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
+                            .message("reservation successfully deleted")
+                    .build());
         } throw new RtsException(404, "Reservation not found!");
     }
 
-    public ResponseStatus deleteAllReservations() {
+    public ResponseEntity<AppResponse> deleteAllReservations() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
 
         if (!reservations.isEmpty()) {
             reservationRepository.deleteAll(reservations);
-            // return something? idk.
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
+                            .message("reservations successfully deleted!")
+                    .build());
         } throw new RtsException(404, "Reservations not found!");
     }
 
@@ -186,10 +196,23 @@ public class AppService {
     }
 
     // admin-specific method
-    public ResponseStatus createSchedule(ScheduleCreationRequest request) {
+    public ResponseEntity<AppResponse> createSchedule(ScheduleCreationRequest request) {
         Train train = trainRepository.findTrainByName(request.train());
 
         if (train != null) {
+            // check if the schedule actually exists: name -> origin -> departure time
+            if (train.getName().equals(request.train().strip())) {
+
+                for (Schedule schedule : train.getSchedules()) {
+                    // check for station of origin
+                    if (request.origin().equals(schedule.getOrigin())) {
+                        // check for departure times
+                        if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
+                            throw new RtsException(409, "there is already a schedule fixed for this period.");  // try another train or time?
+                        }
+                    }
+                }
+            }
             Schedule schedule = Schedule.builder()
                     .train(train)
                     .currentCapacity(train.getCapacity())
@@ -207,10 +230,14 @@ public class AppService {
             utilities.generateSeatsForSchedule(schedule);
             System.out.println("seats generated");
 
-            // return something?
+            return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
+                            .message("schedule successfully created.")
+                    .build());
 
 
-        } throw new RtsException(400, "Schedule creation failed!\nNo such train!");
+        } else {
+            throw new RtsException(400, "Schedule creation failed!\nNo such train!");
+        }
     }
 
     // admin-specific method
@@ -218,7 +245,7 @@ public class AppService {
         if (!trainRepository.existsByName(newTrainRequest.name())) {
             Train train = Train.builder()
                     .name(newTrainRequest.name())
-                    .capacity(Long.getLong(newTrainRequest.capacity().strip()))
+                    .capacity(Long.valueOf(newTrainRequest.capacity().strip()))
                     .schedules(null)    // no schedules for now for new train
                     .build();
             trainRepository.save(train);

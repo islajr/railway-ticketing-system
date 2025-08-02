@@ -18,7 +18,7 @@ public class Time {
     int minute;
 
     public LocalDateTime getLocalDateTime() {
-        return LocalDateTime.of(year, Month.valueOf(month), day, hour, minute);
+        return LocalDateTime.of(year, Month.valueOf(month.toUpperCase()), day, hour, minute);
     }
 
     public static Time fromLocalDateTime(LocalDateTime localDateTime) {

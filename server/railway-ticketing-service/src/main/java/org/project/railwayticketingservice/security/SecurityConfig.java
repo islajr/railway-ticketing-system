@@ -37,7 +37,10 @@ public class SecurityConfig {
                         "/api/v1/rts/auth/**"   // all login and register endpoints
                 ).permitAll()
                         .requestMatchers(
-                                "/api/v1/rts/app/schedule/new"
+                                "/api/v1/rts/app/schedule/new", // adding a new schedule
+                                "/api/v1/rts/app/schedule/edit/{id}",   //  editing a schedule
+                                "/api/v1/rts/app/train/new", // adding a new train
+                                "/api/v1/rts/app/train/{id}"    //  get train information
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

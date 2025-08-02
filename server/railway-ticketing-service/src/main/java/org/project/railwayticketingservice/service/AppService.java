@@ -235,7 +235,7 @@ public class AppService {
     }
 
     public ResponseEntity<NewTrainResponse> getTrain(String id) {
-        Train train = trainRepository.findTrainById(id);
+        Train train = trainRepository.findTrainById(Long.getLong(id));
 
         if (train != null) {
             return ResponseEntity.status(HttpStatus.OK).body(

@@ -32,7 +32,7 @@ public class AppService {
 
     public ResponseEntity<ReservationResponse> createReservation(NewReservationRequest request) {
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Schedule schedule = scheduleRepository.findScheduleById(request.scheduleId());
         ScheduleSeat seat = scheduleSeatRepository.findByLabel(request.preferredSeat());
@@ -89,7 +89,7 @@ public class AppService {
 
     public ResponseEntity<ReservationResponse> getReservation(String id) {
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
@@ -109,7 +109,7 @@ public class AppService {
 
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
 
@@ -130,7 +130,7 @@ public class AppService {
     }
 
     public ResponseEntity<AppResponse> deleteReservation(String id) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
@@ -143,7 +143,7 @@ public class AppService {
     }
 
     public ResponseEntity<AppResponse> deleteAllReservations() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
 

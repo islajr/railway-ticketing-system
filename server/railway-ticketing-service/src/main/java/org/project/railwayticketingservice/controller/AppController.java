@@ -1,10 +1,8 @@
 package org.project.railwayticketingservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
-import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
-import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
-import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
+import org.project.railwayticketingservice.dto.app.request.*;
+import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.service.AppService;
@@ -20,6 +18,7 @@ public class AppController {
 
     private final AppService appService;
 
+    /* reservations */
     @PostMapping("/reservation/new")
     public ResponseEntity<ReservationResponse> createReservation(@RequestBody NewReservationRequest request) {
         return appService.createReservation(request);
@@ -45,6 +44,7 @@ public class AppController {
         return appService.deleteAllReservations();
     }
 
+    /* schedules */
     @GetMapping("/schedule/search")
     public ResponseEntity<List<TrainScheduleResponse>> searchTrainSchedules(
             @RequestParam String filter1,
@@ -59,8 +59,24 @@ public class AppController {
         return appService.createSchedule(scheduleCreationRequest);
     }
 
+    @GetMapping("/schedule/{id}")
+    public ResponseEntity<TrainScheduleResponse> viewTrainSchedule(@PathVariable String id) {
+        return appService.getTrainSchedule(id);
+    }
+
+    @PatchMapping("/schedule/edit/{id}")
+    public ResponseEntity<TrainScheduleResponse> editTrainSchedule(@PathVariable String id, @RequestBody ScheduleUpdateRequest request) {
+        return appService.editTrainSchedule(id, request);
+    }
+
+    /* trains */
     @PostMapping("/train/new")
-    public ResponseStatus createTrain(@RequestBody NewTrainRequest newTrainRequest) {
+    public ResponseEntity<NewTrainResponse> createTrain(@RequestBody NewTrainRequest newTrainRequest) {
         return appService.createNewTrain(newTrainRequest);
+    }
+
+    @GetMapping("/train/{id}")
+    public ResponseEntity<NewTrainResponse> getTrain(@PathVariable String id) {
+        return appService.getTrain(id);
     }
 }

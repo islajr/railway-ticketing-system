@@ -1,10 +1,8 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
-import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
-import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
-import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
+import org.project.railwayticketingservice.dto.app.request.*;
+import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
@@ -17,7 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -200,7 +200,7 @@ public class AppService {
         } throw new RtsException(400, "Schedule creation failed!\nNo such train!");
     }
 
-    public ResponseStatus createNewTrain(NewTrainRequest newTrainRequest) {
+    public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
         if (!trainRepository.existsByName(newTrainRequest.name())) {
             Train train = Train.builder()
                     .name(newTrainRequest.name())
@@ -209,8 +209,76 @@ public class AppService {
                     .build();
             trainRepository.save(train);
             System.out.println("train successfully created");
-            // return something idk
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    NewTrainResponse.builder()
+                            .trainId(train.getId().toString())
+                            .trainName(train.getName())
+                            .capacity(train.getCapacity().toString())
+                            .build()
+            );
 
         } throw new RtsException(409, "train name already exists!");
+    }
+
+    public ResponseEntity<NewTrainResponse> getTrain(String id) {
+        Train train = trainRepository.findTrainById(id);
+
+        if (train != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    NewTrainResponse.builder()
+                            .trainId(train.getId().toString())
+                            .trainName(train.getName())
+                            .capacity(train.getCapacity().toString())
+                            .build()
+            );
+        } throw new RtsException(404, "Train not found!");
+    }
+
+    public ResponseEntity<TrainScheduleResponse> getTrainSchedule(String id) {
+        Schedule schedule = scheduleRepository.findScheduleById(id);
+
+        if (schedule != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    TrainScheduleResponse.builder()
+                            .scheduleId(schedule.getId())
+                            .train(schedule.getTrain().getName())
+                            .currentCapacity(schedule.getCurrentCapacity())
+                            .isFull(schedule.isFull())
+                            .origin(schedule.getOrigin())
+                            .destination(schedule.getDestination())
+                            .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
+                            .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
+                            .availableSeats(schedule.getSeats())
+                            .build()
+            );
+        } throw new RtsException(404, "Schedule not found!");
+    }
+
+    public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
+        Schedule schedule = scheduleRepository.findScheduleById(id);
+
+        if (schedule != null) {
+
+            // origin
+            if (request.origin() != null && !Objects.equals(schedule.getOrigin(), request.origin())) {
+                schedule.setOrigin(request.origin());
+                System.out.println("updated origin for train " + id);
+                // destination
+            } if (request.destination() != null && !Objects.equals(schedule.getDestination(), request.destination())) {
+                schedule.setDestination(request.destination());
+                System.out.println("updated destination for train " + id);
+            }   // departure
+            if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {
+                schedule.setDepartureTime(request.departureTime().getLocalDateTime());
+                System.out.println("updated departure time for train " + id);
+            }   // arrival
+            if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), Time.fromLocalDateTime(schedule.getArrivalTime()))) {
+                schedule.setArrivalTime(request.arrivalTime().getLocalDateTime());
+                System.out.println("updated arrival time for train " + id);
+            }
+
+            scheduleRepository.save(schedule);
+
+        } throw new RtsException(404, "Schedule not found!");
     }
 }

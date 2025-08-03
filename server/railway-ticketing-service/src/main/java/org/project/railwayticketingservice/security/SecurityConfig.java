@@ -34,7 +34,14 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/v1/rts/auth/**"   // all login and register endpoints
+                        "/api/v1/rts/auth/**",   // all login and register endpoints
+
+                                /* Swagger Documentation URLs */
+                                "/swagger-ui/**",               // Swagger UI static resources
+                                "/v3/api-docs",
+                                "/v3/api-docs/**",              // OpenAPI spec
+                                "/swagger-ui.html",             // Swagger main page
+                                "/webjars/**"
                 ).permitAll()
                         .requestMatchers(
                                 "/api/v1/rts/app/schedule/new", // adding a new schedule

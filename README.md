@@ -2,6 +2,9 @@
 
 This is a RESTful web service that allows users to search for train schedules, reserve tickets, and manage their reservations.
 
+Full documenation available at: https://documenter.getpostman.com/view/34198518/2sB3BAMsWh
+
+
 ## Value provided
 
 It streamlines the process of railway ticket booking, providing a convenient and efficient online platform through improved accessibility for passengers, reduced queueing times, and efficient management of train schedules and reservations for railway operators.

@@ -56,7 +56,6 @@ public class AppService {
                         schedule.setFull(true);
                     }
                     scheduleRepository.save(schedule);
-                    scheduleSeatRepository.save(seat);
                 } else {
                     throw new RtsException(409, "Seat is already taken!");
                 }
@@ -74,6 +73,8 @@ public class AppService {
                 .build();
 
         reservationRepository.save(reservation);
+        seat.setReservation(reservation);
+        scheduleSeatRepository.save(seat);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
             ReservationResponse.builder()
@@ -135,6 +136,10 @@ public class AppService {
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
         if (reservation != null) {
+            /*reservation.getSchedule().setCurrentCapacity(reservation.getSchedule().getCurrentCapacity() + 1);
+            reservation.getScheduleSeat().setReserved(false);
+            reservation.getScheduleSeat().setReservation(null);
+            reservationRepository.save(reservation);*/  // attempt at freeing up reserved seats
             reservationRepository.delete(reservation);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                             .message("reservation successfully deleted")
@@ -146,6 +151,7 @@ public class AppService {
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
+        // make seats available again
 
         if (!reservations.isEmpty()) {
             reservationRepository.deleteAll(reservations);

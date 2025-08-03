@@ -25,7 +25,7 @@ public class Schedule {
     @ManyToOne(fetch = FetchType.EAGER)
     private Train train;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     private List<ScheduleSeat> seats;
 
     // capacity and seat selection

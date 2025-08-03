@@ -23,7 +23,7 @@ public class Reservation {
     @ManyToOne
     private Passenger passenger;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     Schedule schedule;
 
     @OneToOne

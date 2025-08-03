@@ -1,0 +1,98 @@
+Table "admins" {
+  "id" bigint [pk, not null]
+  "created_at" timestamp(6)
+  "email" "character varying(80)" [unique, not null]
+  "first_name" "character varying(50)" [not null]
+  "last_name" "character varying(50)" [not null]
+  "password" "character varying(60)" [not null]
+  "updated_at" timestamp(6)
+}
+
+Table "passengers" {
+  "id" bigint [pk, not null]
+  "country" "character varying(50)" [not null]
+  "created_at" timestamp(6)
+  "email" "character varying(80)" [unique, not null]
+  "first_name" "character varying(50)" [not null]
+  "last_name" "character varying(50)" [not null]
+  "password" "character varying(60)" [not null]
+  "phone" "character varying(15)" [not null]
+  "updated_at" timestamp(6)
+}
+
+Table "passengers_reservations" {
+  "passenger_id" bigint [not null]
+  "reservations_id" "character varying(255)" [unique, not null]
+}
+
+Table "reservations" {
+  "id" "character varying(255)" [pk, not null]
+  "created_at" timestamp(6)
+  "updated_at" timestamp(6)
+  "passenger_id" bigint [unique]
+  "schedule_id" "character varying(255)" [unique]
+  "schedule_seat_id" bigint [unique]
+}
+
+Table "rts_db_public_schedule_seat" {
+  "id" bigint [not null]
+  "is_reserved" boolean
+  "label" "character varying(255)"
+  "reservation_id" "character varying(255)"
+  "schedule_id" "character varying(255)"
+}
+
+Table "schedule_seat" {
+  "id" bigint [pk, not null]
+  "is_reserved" boolean [not null]
+  "label" "character varying(255)"
+  "reservation_id" "character varying(255)" [unique]
+  "schedule_id" "character varying(255)"
+}
+
+Table "schedules" {
+  "id" "character varying(255)" [pk, not null]
+  "arrival_time" timestamp(6) [not null]
+  "created_at" timestamp(6)
+  "departure_time" timestamp(6) [not null]
+  "updated_at" timestamp(6)
+  "train_id" bigint
+  "current_capacity" bigint [not null]
+  "destination" "character varying(255)" [not null]
+  "is_full" boolean [not null]
+  "origin" "character varying(255)" [not null]
+}
+
+Table "schedules_seats" {
+  "schedule_id" "character varying(255)" [not null]
+  "seats_id" bigint [unique, not null]
+}
+
+Table "trains" {
+  "id" bigint [pk, not null]
+  "capacity" bigint [not null]
+  "created_at" timestamp(6)
+  "name" "character varying(255)" [unique, not null]
+  "updated_at" timestamp(6)
+}
+
+Ref "fk18e32ynjgl2tsxq1d9jpp6erg":"schedules"."id" < "reservations"."schedule_id"
+
+Ref "fk55b3ky0qoekyyjxiwh7e1o32x":"trains"."id" < "schedules"."train_id"
+
+Ref "fk83gw6voq9706j8w1sl7is1gwc":"schedule_seat"."id" < "schedules_seats"."seats_id"
+
+Ref "fk8a8b8dkf14u98sf873xh26ig7":"schedule_seat"."id" < "reservations"."schedule_seat_id"
+
+Ref "fk8aakn541dpny5cj8a2so1b66q":"schedules"."id" < "schedules_seats"."schedule_id"
+
+Ref "fk8cd71uk96w5u0sl42f0olsaa3":"reservations"."id" < "schedule_seat"."reservation_id"
+
+Ref "fkaowqj7nsdwaam6rvsb1jtoqgf":"passengers"."id" < "passengers_reservations"."passenger_id"
+
+Ref "fkbor5duaeiqsgk2an0qqak99py":"schedules"."id" < "schedule_seat"."schedule_id"
+
+Ref "fkevs41mhy9d3wcaibimpkfbwkd":"reservations"."id" < "passengers_reservations"."reservations_id"
+
+Ref "fkjgvjdwq4v3cp7npw20ur8h3lq":"passengers"."id" < "reservations"."passenger_id"
+

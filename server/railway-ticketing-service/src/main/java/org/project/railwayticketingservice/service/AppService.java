@@ -28,6 +28,7 @@ public class AppService {
     private final ScheduleSeatRepository scheduleSeatRepository;
     private final ReservationRepository reservationRepository;
     private final TrainRepository trainRepository;
+    private final StationRepository stationRepository;
     private final Utilities utilities;
 
     public ResponseEntity<ReservationResponse> createReservation(NewReservationRequest request) {
@@ -82,7 +83,7 @@ public class AppService {
                     .train(reservation.getSchedule().getTrain().getName())
                     .seatNumber(seat.getLabel())
                     .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                    .origin(reservation.getSchedule().getOrigin())
+                    .origin(reservation.getSchedule().getOrigin().toString())
                     .build()
         );
 
@@ -101,7 +102,7 @@ public class AppService {
                             .train(reservation.getSchedule().getTrain().getName())
                             .seatNumber(reservation.getScheduleSeat().getLabel())
                             .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                            .origin(reservation.getSchedule().getOrigin())
+                            .origin(reservation.getSchedule().getOrigin().toString())
                             .build()
             );
 
@@ -123,7 +124,7 @@ public class AppService {
                                     .train(reservation.getSchedule().getTrain().getName())
                                     .seatNumber(reservation.getScheduleSeat().getLabel())
                                     .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .origin(reservation.getSchedule().getOrigin())
+                                    .origin(reservation.getSchedule().getOrigin().toString())
                                     .build())
                             .toList()
             );
@@ -194,8 +195,8 @@ public class AppService {
                                                 .collect(Collectors.toList()))
                                         .currentCapacity(schedule.getCurrentCapacity())
                                         .isFull(schedule.isFull())
-                                        .origin(schedule.getOrigin())
-                                        .destination(schedule.getDestination())
+                                        .origin(schedule.getOrigin().toString())
+                                        .destination(schedule.getDestination().toString())
                                         .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
                                         .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
                                         .build()
@@ -214,7 +215,7 @@ public class AppService {
 
                 for (Schedule schedule : train.getSchedules()) {
                     // check for station of origin
-                    if (request.origin().equals(schedule.getOrigin())) {
+                    if (request.origin().equals(schedule.getOrigin().toString())) {
                         // check for departure times
                         if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
                             throw new RtsException(409, "there is already a schedule fixed for this period.");  // try another train or time?
@@ -222,30 +223,37 @@ public class AppService {
                     }
                 }
             }
-            Schedule schedule = Schedule.builder()
-                    .train(train)
-                    .currentCapacity(train.getCapacity())
-                    .isFull(false)
-                    .origin(request.origin())
-                    .destination(request.destination())
-                    .departureTime(request.departure().getLocalDateTime())
-                    .arrivalTime(request.arrival().getLocalDateTime())
-                    .build();
 
-            scheduleRepository.save(schedule);
-            System.out.println("schedule successfully created");
+            // convert to station
+            Station origin = stationRepository.getStationByName(request.origin());
+            Station destination = stationRepository.getStationByName(request.destination());
 
-            // generating seats for schedule
-            utilities.generateSeatsForSchedule(schedule);
-            System.out.println("seats generated");
+            if (origin != null && destination != null) {
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
-                            .message("schedule successfully created.")
-                    .build());
+                Schedule schedule = Schedule.builder()
+                        .train(train)
+                        .currentCapacity(train.getCapacity())
+                        .isFull(false)
+                        .origin(origin)
+                        .destination(destination)
+                        .departureTime(request.departure().getLocalDateTime())
+                        .arrivalTime(request.arrival().getLocalDateTime())
+                        .build();
 
+                scheduleRepository.save(schedule);
+                System.out.println("schedule successfully created");
+
+                // generating seats for schedule
+                utilities.generateSeatsForSchedule(schedule);
+                System.out.println("seats generated");
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
+                        .message("schedule successfully created.")
+                        .build());
+            } throw new RtsException(400, "Please input a valid station");
 
         } else {
-            throw new RtsException(400, "Schedule creation failed!\nNo such train!");
+            throw new RtsException(400, "Schedule creation failed! No such train!");
         }
     }
 
@@ -294,8 +302,8 @@ public class AppService {
                             .train(schedule.getTrain().getName())
                             .currentCapacity(schedule.getCurrentCapacity())
                             .isFull(schedule.isFull())
-                            .origin(schedule.getOrigin())
-                            .destination(schedule.getDestination())
+                            .origin(schedule.getOrigin().toString())
+                            .destination(schedule.getDestination().toString())
                             .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
                             .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
                             .availableSeats(schedule.getEmptySeats().stream()
@@ -308,16 +316,18 @@ public class AppService {
 
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
+        Station origin = stationRepository.getStationByName(request.origin());
+        Station destination = stationRepository.getStationByName(request.destination());
 
         if (schedule != null) {
 
             // origin
-            if (request.origin() != null && !Objects.equals(schedule.getOrigin(), request.origin())) {
-                schedule.setOrigin(request.origin());
+            if (!Objects.equals(request.origin(), "null") && !Objects.equals(schedule.getOrigin(), origin)) {
+                schedule.setOrigin(origin);
                 System.out.println("updated origin for train " + id);
                 // destination
-            } if (request.destination() != null && !Objects.equals(schedule.getDestination(), request.destination())) {
-                schedule.setDestination(request.destination());
+            } if (!Objects.equals(request.destination(), "null") && !Objects.equals(schedule.getDestination(), destination)) {
+                schedule.setDestination(destination);
                 System.out.println("updated destination for train " + id);
             }   // departure
             if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {

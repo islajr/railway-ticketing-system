@@ -41,11 +41,11 @@ public class Schedule {
     @Column(nullable = false, name = "arrival_time")
     private LocalDateTime arrivalTime;
 
-    @Column(nullable = false, name = "origin")
-    private String origin;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Station origin;
 
-    @Column(nullable = false, name = "destination")
-    private String destination;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Station destination;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

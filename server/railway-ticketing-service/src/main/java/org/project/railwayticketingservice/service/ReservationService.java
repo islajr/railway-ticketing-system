@@ -161,47 +161,4 @@ public class ReservationService {
                     .build());
         } throw new RtsException(404, "Reservations not found!");
     }
-
-    public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
-        List<Schedule> schedules;
-
-        if (filter3.equals("null")) {   // if filter3 is null
-
-            // check filter2
-            if (filter2.equals("null")) {   // if filter2 is null
-
-                if (!filter1.equals("null")) {
-                    schedules = utilities.getSchedules(filter1, request);
-                } else {
-                    throw new RtsException(400, "Filters cannot be null!");
-                }
-
-            } else {
-                schedules = utilities.getSchedules(filter1, filter2, request);
-            }
-        } else {
-            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(request.origin(), request.destination(), request.time().getLocalDateTime());
-        }
-
-        // convert schedules to proper response DTOs
-        return ResponseEntity.status(HttpStatus.OK).body(
-                schedules.stream()
-                        .map(
-                                schedule -> TrainScheduleResponse.builder()
-                                        .scheduleId(schedule.getId())
-                                        .train(schedule.getTrain().getName())
-                                        .availableSeats(schedule.getEmptySeats().stream()
-                                                .map(ScheduleSeat::getLabel)
-                                                .collect(Collectors.toList()))
-                                        .currentCapacity(schedule.getCurrentCapacity())
-                                        .isFull(schedule.isFull())
-                                        .origin(schedule.getOrigin().toString())
-                                        .destination(schedule.getDestination().toString())
-                                        .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                        .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                        .build()
-                        )
-                        .toList()
-        );
-    }
 }

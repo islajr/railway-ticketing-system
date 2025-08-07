@@ -79,7 +79,7 @@ public class ScheduleController {
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })
-    @PatchMapping("/edit/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(@PathVariable String id, @RequestBody ScheduleUpdateRequest request) {
         return scheduleService.editTrainSchedule(id, request);
     }

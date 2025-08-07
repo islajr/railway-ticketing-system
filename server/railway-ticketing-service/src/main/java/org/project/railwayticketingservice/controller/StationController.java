@@ -42,8 +42,22 @@ public class StationController {
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<StationResponse> deleteStation(@PathVariable Long id) {
         return stationService.deleteStation(id);
+    }
+
+    @Operation(description = "This endpoint edits a given train station.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated the train station"),
+            @ApiResponse(responseCode = "500", description = "Internal Error updating train station"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "404", description = "Train station does not exist"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<StationResponse> updateStation(@PathVariable Long id) {
+        return stationService.updateStation(id);
     }
 }

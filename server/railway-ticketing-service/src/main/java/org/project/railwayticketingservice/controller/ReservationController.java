@@ -91,5 +91,19 @@ public class ReservationController {
         return reservationService.deleteAllReservations();
     }
 
+    @Operation(description = "This endpoint updates a given reservation.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated the reservation"),
+            @ApiResponse(responseCode = "500", description = "Internal Error updating the reservation"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "404", description = "Reservation does not exist"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id) {
+        return reservationService.updateReservation(id);
+    }
+
 
 }

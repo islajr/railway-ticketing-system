@@ -33,6 +33,15 @@ public class StationController {
         return stationService.createStation(request);
     }
 
+    @Operation(description = "This endpoint creates a new train station.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successfully deleted the train station"),
+            @ApiResponse(responseCode = "500", description = "Internal Error deleting train station"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "404", description = "Train station does not exist"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<StationResponse> deleteStation(@PathVariable Long id) {
         return stationService.deleteStation(id);

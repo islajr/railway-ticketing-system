@@ -23,14 +23,23 @@ public class StationService {
                     .name(request.name())
                     .code(request.code())
                     .LGA(request.LGA())
+                    .isActive(true)
                     .build();
             System.out.println("created station: " + station.getName());
             stationRepository.save(station);
             return ResponseEntity.status(HttpStatus.CREATED).body(StationResponse.builder()
+                            .id(station.getId())
                             .code(station.getCode())
                             .name(station.getName())
-                            .LGA(station.getLGA())
+                            .lga(station.getLGA())
                     .build());
         } throw new RtsException(409, "Station with name " + request.name() + " already exists");
+    }
+
+    public ResponseEntity<StationResponse> deleteStation(Long stationId) {
+        Station station = stationRepository.findById(stationId).orElseThrow(() -> new RtsException(404, "Station with id " + stationId + " does not exist"));
+
+        stationRepository.delete(station);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

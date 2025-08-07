@@ -4,8 +4,9 @@ import lombok.Builder;
 
 @Builder
 public record StationResponse(
+        Long id,
         String name,
         String code,
-        String LGA
+        String lga
 ) {
 }

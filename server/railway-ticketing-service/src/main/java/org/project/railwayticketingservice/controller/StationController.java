@@ -9,9 +9,7 @@ import org.project.railwayticketingservice.dto.app.request.NewStationRequest;
 import org.project.railwayticketingservice.dto.app.response.StationResponse;
 import org.project.railwayticketingservice.service.StationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/rts/station")
@@ -33,5 +31,10 @@ public class StationController {
     @PostMapping("/new")
     public ResponseEntity<StationResponse> createStation(NewStationRequest request) {
         return stationService.createStation(request);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<StationResponse> deleteStation(@PathVariable Long id) {
+        return stationService.deleteStation(id);
     }
 }

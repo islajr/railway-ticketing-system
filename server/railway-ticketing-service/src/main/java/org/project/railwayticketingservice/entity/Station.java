@@ -29,6 +29,7 @@ public class Station {
     @Column(nullable = false, name = "lga")
     private String LGA; // local-government area
 
+    @Column(nullable = false)
     private boolean isActive;
 
     @CreationTimestamp

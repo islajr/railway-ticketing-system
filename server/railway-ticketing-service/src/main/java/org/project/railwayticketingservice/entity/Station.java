@@ -1,10 +1,7 @@
 package org.project.railwayticketingservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 @ToString
 public class Station {
 
@@ -26,6 +25,11 @@ public class Station {
 
     @Column(nullable = false)
     private String code;
+
+    @Column(nullable = false, name = "lga")
+    private String LGA; // local-government area
+
+    private boolean isActive;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

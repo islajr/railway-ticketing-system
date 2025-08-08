@@ -177,4 +177,6 @@ public class ScheduleService {
         );
     }
 
+    public ResponseEntity<AppResponse> deleteTrainSchedule(String id) {
+    }
 }

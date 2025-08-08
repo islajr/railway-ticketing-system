@@ -161,4 +161,8 @@ public class ReservationService {
                     .build());
         } throw new RtsException(404, "Reservations not found!");
     }
+
+    public ResponseEntity<ReservationResponse> updateReservation(Long id) {
+        return null;
+    }
 }

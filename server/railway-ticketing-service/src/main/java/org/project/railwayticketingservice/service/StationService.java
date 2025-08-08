@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.NewStationRequest;
+import org.project.railwayticketingservice.dto.app.request.StationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.StationResponse;
 import org.project.railwayticketingservice.entity.Station;
 import org.project.railwayticketingservice.exception.RtsException;
@@ -9,6 +10,8 @@ import org.project.railwayticketingservice.repository.StationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +44,14 @@ public class StationService {
 
         stationRepository.delete(station);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    public ResponseEntity<StationResponse> updateStation(Long id, StationUpdateRequest request) {
+    }
+
+    public ResponseEntity<StationResponse> getStation(Long id) {
+    }
+
+    public ResponseEntity<List<StationResponse>> getAllStations() {
     }
 }

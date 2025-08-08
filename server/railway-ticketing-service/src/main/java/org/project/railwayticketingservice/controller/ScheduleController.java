@@ -83,4 +83,18 @@ public class ScheduleController {
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(@PathVariable String id, @RequestBody ScheduleUpdateRequest request) {
         return scheduleService.editTrainSchedule(id, request);
     }
+
+    @Operation(description = "This endpoint removes a train schedule.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Successfully deleted the train schedule"),
+            @ApiResponse(responseCode = "500", description = "Internal Error deleting the train schedule"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "404", description = "Train schedule does not exist"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AppResponse> deleteTrainSchedule(@PathVariable String id) {
+        return scheduleService.deleteTrainSchedule(id);
+    }
 }

@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
+import org.project.railwayticketingservice.dto.app.request.TrainUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.entity.Train;
 import org.project.railwayticketingservice.exception.RtsException;
@@ -9,6 +10,8 @@ import org.project.railwayticketingservice.repository.TrainRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +52,14 @@ public class TrainService {
                             .build()
             );
         } throw new RtsException(404, "Train not found!");
+    }
+
+    public ResponseEntity<NewTrainResponse> updateTrain(String id, TrainUpdateRequest request) {
+    }
+
+    public ResponseEntity<NewTrainResponse> removeTrain(String id) {
+    }
+
+    public ResponseEntity<List<Train>> getAllTrains() {
     }
 }

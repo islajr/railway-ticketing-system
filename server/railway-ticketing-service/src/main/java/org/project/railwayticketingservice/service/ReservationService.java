@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.service;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
+import org.project.railwayticketingservice.dto.app.request.ReservationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -162,7 +163,7 @@ public class ReservationService {
         } throw new RtsException(404, "Reservations not found!");
     }
 
-    public ResponseEntity<ReservationResponse> updateReservation(Long id) {
+    public ResponseEntity<ReservationResponse> updateReservation(Long id, ReservationUpdateRequest request) {
         return null;
     }
 }

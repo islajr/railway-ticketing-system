@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
+import org.project.railwayticketingservice.dto.app.request.ReservationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.service.ReservationService;
@@ -101,8 +102,8 @@ public class ReservationController {
 
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id) {
-        return reservationService.updateReservation(id);
+    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id, @RequestBody ReservationUpdateRequest request) {
+        return reservationService.updateReservation(id, request);
     }
 
 

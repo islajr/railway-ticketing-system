@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
 import org.project.railwayticketingservice.dto.app.request.TrainUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
-import org.project.railwayticketingservice.entity.Train;
 import org.project.railwayticketingservice.service.TrainService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +60,7 @@ public class TrainController {
 
     })
     @GetMapping("/all")
-    public ResponseEntity<List<Train>> getAllTrains() {
+    public ResponseEntity<List<NewTrainResponse>> getAllTrains() {
         return trainService.getAllTrains();
     }
 

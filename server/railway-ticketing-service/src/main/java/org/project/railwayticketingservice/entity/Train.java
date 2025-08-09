@@ -24,7 +24,10 @@ public class Train {
     @Column(nullable = false, unique = true, name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "train")
+    @Column(nullable = false, name = "is_active")
+    private boolean isActive;
+
+    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Schedule> schedules;
 
     @Column(nullable = false, name = "capacity")

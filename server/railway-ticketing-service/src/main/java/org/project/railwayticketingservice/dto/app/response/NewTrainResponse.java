@@ -6,6 +6,7 @@ import lombok.Builder;
 public record NewTrainResponse(
         String trainId,
         String trainName,
+        String isActive,
         String capacity
 ) {
 }

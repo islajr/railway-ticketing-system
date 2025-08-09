@@ -26,7 +26,7 @@ public class Reservation {
     @OneToOne(cascade = CascadeType.ALL)
     Schedule schedule;
 
-    @OneToOne
+    @OneToOne()
     ScheduleSeat scheduleSeat;
 
     @CreationTimestamp

@@ -8,9 +8,7 @@ import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
 import org.project.railwayticketingservice.exception.RtsException;
-import org.project.railwayticketingservice.repository.ScheduleRepository;
-import org.project.railwayticketingservice.repository.StationRepository;
-import org.project.railwayticketingservice.repository.TrainRepository;
+import org.project.railwayticketingservice.repository.*;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +25,8 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final TrainRepository trainRepository;
     private final StationRepository stationRepository;
+    private final ReservationRepository reservationRepository;
+    private final ScheduleSeatRepository scheduleSeatRepository;
     private final Utilities utilities;
 
     // admin-specific method
@@ -178,5 +178,27 @@ public class ScheduleService {
     }
 
     public ResponseEntity<AppResponse> deleteTrainSchedule(String id) {
+        Schedule schedule = scheduleRepository.findScheduleById(id);
+
+        if (schedule != null) {
+
+            // delete all reservations
+            for (ScheduleSeat seat : schedule.getSeats()) {
+                if (seat.isReserved() && seat.getReservation() != null) {
+                    reservationRepository.delete(seat.getReservation());
+                }
+            }
+
+            // delete all seats -> set them to null -> delete schedule
+            scheduleSeatRepository.deleteAll(schedule.getSeats());
+            System.out.println("deleted all seats for schedule: " + schedule.getId());
+            schedule.setSeats(null);
+            scheduleRepository.delete(schedule);
+            System.out.println("deleted schedule: " + schedule.getId());
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        } throw new RtsException(404, "Schedule not found!");
+
     }
 }

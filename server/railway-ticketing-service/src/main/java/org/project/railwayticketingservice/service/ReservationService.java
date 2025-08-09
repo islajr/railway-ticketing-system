@@ -1,12 +1,10 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
 import org.project.railwayticketingservice.dto.app.request.ReservationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
-import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
 import org.project.railwayticketingservice.exception.RtsException;
 import org.project.railwayticketingservice.repository.PassengerRepository;
@@ -20,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -164,6 +162,35 @@ public class ReservationService {
     }
 
     public ResponseEntity<ReservationResponse> updateReservation(Long id, ReservationUpdateRequest request) {
-        return null;
+
+        /* allow passengers to change their selected seats for a start. */
+        Reservation reservation = reservationRepository.findReservationById(String.valueOf(id))
+                .orElseThrow(() -> new RtsException(404, "Reservation does not exist"));
+
+        if (!Objects.equals(reservation.getScheduleSeat().getLabel(), request.preferredSeat())) {   // check for seat mismatch
+
+            // check for availability
+            ScheduleSeat newSeat = scheduleSeatRepository.findByLabel(request.preferredSeat().toUpperCase().strip());
+
+            if (newSeat != null) {
+                if ((!newSeat.isReserved()) && newSeat.getReservation() == null) {    // if seat is free
+                    newSeat.setReserved(true);
+                    newSeat.setReservation(reservation);
+                    scheduleSeatRepository.save(newSeat);
+
+                    reservation.setScheduleSeat(newSeat);
+                    reservationRepository.save(reservation);
+                    System.out.println("assigned new seat: " + newSeat.getLabel() + " to reservation: " + reservation.getId() + ".");
+
+                    return ResponseEntity.ok(ReservationResponse.builder()
+                                    .reservationId(reservation.getId())
+                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
+                                    .train(reservation.getSchedule().getTrain().getName())
+                                    .origin(reservation.getSchedule().getOrigin().getName())
+                                    .seatNumber(reservation.getScheduleSeat().getLabel())
+                            .build());
+                } throw new RtsException(409, "Seat is already taken!");
+            } throw new RtsException(404, "No such seat");
+        } throw new RtsException(400, "nothing to update");
     }
 }

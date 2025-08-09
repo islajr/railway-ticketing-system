@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, String> {
@@ -16,4 +17,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, String
     List<Reservation> findAllByPassenger(Passenger passenger);
 
     Reservation findReservationByScheduleAndPassenger(Schedule schedule, Passenger passenger);
+
+    Optional<Reservation> findReservationById(String s);
 }

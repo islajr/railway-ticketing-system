@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -47,11 +49,70 @@ public class StationService {
     }
 
     public ResponseEntity<StationResponse> updateStation(Long id, StationUpdateRequest request) {
+
+        /* updatable station attributes:
+        *
+        * - name
+        * - code
+        * - isActive
+        * */
+
+        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(404, "Station not found"));
+
+        if (!Objects.equals(request.name(), "null") && !station.getName().equals(request.name())) {
+            station.setName(request.name());
+        }
+        if (!Objects.equals(request.code(), "null") && !station.getCode().equals(request.code())) {
+            station.setCode(request.code());
+        }
+        if (!Objects.equals(request.isActive(), "null") && !String.valueOf(station.isActive()).equals(request.isActive())) {
+            station.setActive(Boolean.parseBoolean(request.isActive().strip()));
+        }
+
+        stationRepository.save(station);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                StationResponse.builder()
+                        .id(station.getId())
+                        .name(station.getName())
+                        .code(station.getCode())
+                        .lga(station.getLGA())
+                        .build()
+        );
     }
 
     public ResponseEntity<StationResponse> getStation(Long id) {
+        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(404, "Station not found"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(StationResponse.builder()
+                        .id(station.getId())
+                        .name(station.getName())
+                        .code(station.getCode())
+                        .lga(station.getLGA())
+                        .build()
+        );
+
     }
 
     public ResponseEntity<List<StationResponse>> getAllStations() {
+
+        List<Station> stations = stationRepository.findAll();
+
+        if (stations.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        List<StationResponse> stationResponses = new ArrayList<>();
+
+        for (Station station : stations) {
+            stationResponses.add(StationResponse.builder()
+                            .id(station.getId())
+                            .name(station.getName())
+                            .code(station.getCode())
+                            .lga(station.getLGA())
+                            .build()
+            );
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(stationResponses);
     }
 }

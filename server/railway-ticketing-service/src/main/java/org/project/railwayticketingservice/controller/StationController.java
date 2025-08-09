@@ -60,7 +60,7 @@ public class StationController {
 
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<StationResponse> updateStation(@PathVariable Long id, StationUpdateRequest request) {
+    public ResponseEntity<StationResponse> updateStation(@PathVariable Long id, @RequestBody StationUpdateRequest request) {
         return stationService.updateStation(id, request);
     }
 

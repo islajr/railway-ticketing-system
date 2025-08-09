@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.util;
 
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
+import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
 import org.project.railwayticketingservice.exception.RtsException;
@@ -106,6 +107,20 @@ public class Utilities {
 
         schedule.setSeats(seats);
         scheduleSeatRepository.saveAll(seats);
+    }
+
+    public void freeUpSeat(Reservation reservation) {
+        Schedule schedule = reservation.getSchedule();
+        ScheduleSeat seat = reservation.getScheduleSeat();
+
+        schedule.setCurrentCapacity(schedule.getCurrentCapacity() + 1);
+        seat.setReserved(false);
+        seat.setReservation(null);
+
+        System.out.println("freed up seat: " + seat.getLabel() + "from schedule: " + schedule.getId());
+
+        scheduleRepository.save(schedule);
+        scheduleSeatRepository.save(seat);
     }
 
 

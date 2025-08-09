@@ -138,10 +138,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
         if (reservation != null) {
-            /*reservation.getSchedule().setCurrentCapacity(reservation.getSchedule().getCurrentCapacity() + 1);
-            reservation.getScheduleSeat().setReserved(false);
-            reservation.getScheduleSeat().setReservation(null);
-            reservationRepository.save(reservation);*/  // attempt at freeing up reserved seats
+            utilities.freeUpSeat(reservation);
             reservationRepository.delete(reservation);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservation successfully deleted")
@@ -156,6 +153,9 @@ public class ReservationService {
         // make seats available again
 
         if (!reservations.isEmpty()) {
+            for (Reservation reservation : reservations) {
+                utilities.freeUpSeat(reservation);
+            }
             reservationRepository.deleteAll(reservations);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservations successfully deleted!")

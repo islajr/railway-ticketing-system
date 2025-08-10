@@ -24,7 +24,7 @@ public class Train {
     @Column(nullable = false, unique = true, name = "name")
     private String name;
 
-    @Column(nullable = false, name = "is_active")
+    @Column(nullable = false)
     private boolean isActive;
 
     @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true)

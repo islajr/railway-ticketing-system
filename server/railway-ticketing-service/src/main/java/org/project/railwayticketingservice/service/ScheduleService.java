@@ -136,6 +136,8 @@ public class ScheduleService {
 
     public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
         List<Schedule> schedules;
+        Station origin = stationRepository.getStationByName(request.origin());
+        Station destination = stationRepository.getStationByName(request.destination());
 
         if (filter3.equals("null")) {   // if filter3 is null
 
@@ -152,7 +154,7 @@ public class ScheduleService {
                 schedules = utilities.getSchedules(filter1, filter2, request);
             }
         } else {
-            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(request.origin(), request.destination(), request.time().getLocalDateTime());
+            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time().getLocalDateTime());
         }
 
         // convert schedules to proper response DTOs

@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Table(name = "trains")
 public class Station {
 
     @Id

@@ -45,9 +45,9 @@ public class SecurityConfig {
                 ).permitAll()
                         .requestMatchers(
                                 "/api/v1/rts/app/schedule/new", // adding a new schedule
-                                "/api/v1/rts/app/schedule/edit/{id}",   //  editing a schedule
-                                "/api/v1/rts/app/train/new", // adding a new train
-                                "/api/v1/rts/app/train/{id}"    //  get train information
+                                "/api/v1/rts/app/schedule/{id}",    //  deleting, getting and editing a schedule
+                                "/api/v1/rts/station/**",   // all station endpoints
+                                "/api/v1/rts/app/train/**" // all train endpoints
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

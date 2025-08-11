@@ -22,7 +22,7 @@ public class ScheduleSeat {
     @ManyToOne
     private Schedule schedule;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private Reservation reservation;
 
 }

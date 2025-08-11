@@ -46,7 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/rts/app/schedule/new", // adding a new schedule
                                 "/api/v1/rts/app/schedule/{id}",    //  deleting, getting and editing a schedule
-                                "/api/v1/rts/station/**",   // all station endpoints
+                                "/api/v1/rts/app/station/**",   // all station endpoints
+                                "/api/v1/rts/app/station/new",  // creating a new station
                                 "/api/v1/rts/app/train/**" // all train endpoints
                         ).hasRole("ADMIN")
                         .anyRequest().authenticated())

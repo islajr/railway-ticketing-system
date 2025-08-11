@@ -20,10 +20,10 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     private Passenger passenger;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     Schedule schedule;
 
     @OneToOne()

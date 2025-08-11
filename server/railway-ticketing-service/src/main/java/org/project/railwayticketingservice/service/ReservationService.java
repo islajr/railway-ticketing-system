@@ -82,7 +82,7 @@ public class ReservationService {
                         .train(reservation.getSchedule().getTrain().getName())
                         .seatNumber(seat.getLabel())
                         .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                        .origin(reservation.getSchedule().getOrigin().toString())
+                        .origin(reservation.getSchedule().getOrigin().getName())
                         .build()
         );
 
@@ -101,7 +101,7 @@ public class ReservationService {
                             .train(reservation.getSchedule().getTrain().getName())
                             .seatNumber(reservation.getScheduleSeat().getLabel())
                             .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                            .origin(reservation.getSchedule().getOrigin().toString())
+                            .origin(reservation.getSchedule().getOrigin().getName())
                             .build()
             );
 
@@ -123,7 +123,7 @@ public class ReservationService {
                                     .train(reservation.getSchedule().getTrain().getName())
                                     .seatNumber(reservation.getScheduleSeat().getLabel())
                                     .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .origin(reservation.getSchedule().getOrigin().toString())
+                                    .origin(reservation.getSchedule().getOrigin().getName())
                                     .build())
                             .toList()
             );

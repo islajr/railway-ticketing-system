@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/rts/station")
+@RequestMapping("/api/v1/rts/app/station")
 @Tag(name = "Station Endpoints", description = "This section addresses stations and their endpoints.")
 @RequiredArgsConstructor
 public class StationController {
@@ -32,7 +32,7 @@ public class StationController {
 
     })
     @PostMapping("/new")
-    public ResponseEntity<StationResponse> createStation(NewStationRequest request) {
+    public ResponseEntity<StationResponse> createStation(@RequestBody NewStationRequest request) {
         return stationService.createStation(request);
     }
 

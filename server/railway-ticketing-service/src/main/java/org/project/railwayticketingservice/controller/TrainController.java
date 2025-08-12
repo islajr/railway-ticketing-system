@@ -27,7 +27,7 @@ public class TrainController {
             @ApiResponse(responseCode = "201", description = "Successfully created the train"),
             @ApiResponse(responseCode = "500", description = "Internal Error creating the train"),
             @ApiResponse(responseCode = "401", description = "Unauthorized access"),
-            @ApiResponse(responseCode = "409", description = "train name conflict"),
+            @ApiResponse(responseCode = "409", description = "train name already exists"),
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })

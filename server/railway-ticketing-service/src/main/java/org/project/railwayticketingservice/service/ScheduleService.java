@@ -26,7 +26,6 @@ public class ScheduleService {
     private final TrainRepository trainRepository;
     private final StationRepository stationRepository;
     private final ReservationRepository reservationRepository;
-    private final ScheduleSeatRepository scheduleSeatRepository;
     private final Utilities utilities;
 
     // admin-specific method
@@ -191,10 +190,7 @@ public class ScheduleService {
                 }
             }
 
-            // delete all seats -> set them to null -> delete schedule
-            scheduleSeatRepository.deleteAll(schedule.getSeats());
-            System.out.println("deleted all seats for schedule: " + schedule.getId());
-            schedule.setSeats(null);
+            // delete schedule
             scheduleRepository.delete(schedule);
             System.out.println("deleted schedule: " + schedule.getId());
 

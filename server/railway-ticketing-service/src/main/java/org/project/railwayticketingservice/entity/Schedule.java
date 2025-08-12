@@ -25,7 +25,7 @@ public class Schedule {
     @ManyToOne(fetch = FetchType.EAGER)
     private Train train;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduleSeat> seats;
 
     // capacity and seat selection
@@ -41,11 +41,11 @@ public class Schedule {
     @Column(nullable = false, name = "arrival_time")
     private LocalDateTime arrivalTime;
 
-    @Column(nullable = false, name = "origin")
-    private String origin;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Station origin;
 
-    @Column(nullable = false, name = "destination")
-    private String destination;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Station destination;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -62,5 +62,5 @@ public class Schedule {
         }
 
         return emptySeats;
-    };
+    }
 }

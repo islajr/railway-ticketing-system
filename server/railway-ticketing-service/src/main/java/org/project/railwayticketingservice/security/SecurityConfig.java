@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +35,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers(
-                        "/api/v1/rts/auth/**",   // all login and register endpoints
+                        "/api/v1/rts/auth/**",   // all auth endpoints
 
                                 /* Swagger Documentation URLs */
                                 "/swagger-ui/**",               // Swagger UI static resources
@@ -43,12 +44,24 @@ public class SecurityConfig {
                                 "/swagger-ui.html",             // Swagger main page
                                 "/webjars/**"
                 ).permitAll()
-                        .requestMatchers(
-                                "/api/v1/rts/app/schedule/new", // adding a new schedule
-                                "/api/v1/rts/app/schedule/edit/{id}",   //  editing a schedule
-                                "/api/v1/rts/app/train/new", // adding a new train
-                                "/api/v1/rts/app/train/{id}"    //  get train information
-                        ).hasRole("ADMIN")
+                        /* ADMIN METHODS */
+                        // POST
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/rts/app/schedule/new",
+                                "/api/v1/rts/app/station/new",
+                                "/api/v1/rts/app/train/new").hasRole("ADMIN")
+
+                        // UPDATE
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/v1/rts/app/schedule/{id}",
+                                "/api/v1/rts/app/station/{id}",
+                                "/api/v1/rts/app/train/{id}").hasRole("ADMIN")
+
+                        // DELETE
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/v1/rts/app/schedule/{id}",
+                                "/api/v1/rts/app/station/{id}",
+                                "/api/v1/rts/app/train/{id}").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)

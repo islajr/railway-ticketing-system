@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -14,28 +13,29 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-@Table(name = "trains")
-public class Train {
+@ToString
+@Table(name = "station")
+public class Station {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, name = "name")
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    private String code;
+
+    @Column(nullable = false, name = "lga")
+    private String LGA; // local-government area
 
     @Column(nullable = false)
     private boolean isActive;
 
-    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Schedule> schedules;
-
-    @Column(nullable = false, name = "capacity")
-    Long capacity;  // 1040-seater, A - Z (26), 40 places. 26 cars. 40 seats per car. each car bears an alphabet
-
     @CreationTimestamp
-    LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;
 }

@@ -1,7 +1,7 @@
 package org.project.railwayticketingservice.repository;
 
 import org.project.railwayticketingservice.entity.Schedule;
-import org.project.railwayticketingservice.entity.Train;
+import org.project.railwayticketingservice.entity.Station;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,17 +13,17 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
 
     Schedule findScheduleById(String id);
 
-    List<Schedule> findSchedulesByOrigin(String origin);
+    List<Schedule> findSchedulesByOrigin(Station origin);
 
-    List<Schedule> findSchedulesByDestination(String destination);
+    List<Schedule> findSchedulesByDestination(Station destination);
 
     List<Schedule> findSchedulesByDepartureTime(LocalDateTime departureTime);
 
-    List<Schedule> findSchedulesByOriginAndDestination(String origin, String destination);
+    List<Schedule> findSchedulesByOriginAndDestination(Station origin, Station destination);
 
-    List<Schedule> findSchedulesByOriginAndDepartureTime(String origin, LocalDateTime localDateTime);
+    List<Schedule> findSchedulesByOriginAndDepartureTime(Station origin, LocalDateTime localDateTime);
 
-    List<Schedule> findSchedulesByDestinationAndDepartureTime(String origin, LocalDateTime localDateTime);
+    List<Schedule> findSchedulesByDestinationAndDepartureTime(Station origin, LocalDateTime localDateTime);
 
-    List<Schedule> findSchedulesByOriginAndDestinationAndDepartureTime(String origin, String destination, LocalDateTime departureTime);
+    List<Schedule> findSchedulesByOriginAndDestinationAndDepartureTime(Station origin, Station destination, LocalDateTime departureTime);
 }

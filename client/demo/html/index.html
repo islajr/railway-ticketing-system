@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTS - Auth</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Railway Ticketing System</h1>
+    </header>
+     <main>
+        <div class="main-container">
+            <div class="auth-container" id="sign-up-container">
+                <h2>Sign Up</h2>
+                <form action="" method="post" id="sign-up-form">
+                    <label for="signup-firstname">First Name:</label>
+                    <input type="text" class="signup-text" id="signup-firstname" name="firstname" required minlength="3" maxlength="20">
+
+                    <label for="signup-lastname">Last Name:</label>
+                    <input type="text" class="signup-text" id="signup-lastname" name="lastname" required minlength="3" maxlength="20">
+
+                    <label for="signup-e-mail">E-mail:</label>
+                    <input type="email" name="signup-e-mail" id="signup-e-mail" required minlength="5" maxlength="50">
+
+                    <label for="signup-country">Country:</label>
+                    <select name="country" id="signup-country">
+                        <option value="">Select your country</option>
+                        <option value="Nigeria" selected>Nigeria</option>
+                        <option value="USA" disabled>United States</option>
+                        <option value="Canada" disabled>Canada</option>
+                        <option value="UK" disabled>United Kingdom</option>
+                        <option value="Australia" disabled>Australia</option>
+                        <option value="India" disabled>India</option>
+                        <!-- Add more countries as needed -->
+                        <option value="Other" disabled>Other</option>
+                    </select>
+
+                    <label for="phone-number">Phone Number (+234):</label>
+                    <input type="text" class="signup-text" id="phone-number" name="phone-number" required  maxlength="11">
+                    
+                    <label for="signup-password">Password:</label>
+                    <input type="password" id="signup-password" name="signup-password" required minlength="8" maxlength="75" a>
+                    
+                    <button type="submit" id="signup-submit-button">Sign Up</button>
+                    
+                    <h4 id="login-prompt">Already have an account?
+                    + Click <a href="#" onclick="
+                    document.getElementById('login-container').style.display='flex';
+                    document.getElementById('sign-up-container').style.display='none'">here</a></h4>
+                
+                </form>
+            </div>
+
+            <!-- Login form -->
+             <div class="auth-container" id="login-container" hidden>
+                <h2>Login</h2>
+                <form action="" method="post" hidden id="login-form">
+                    <label for="login-identifier">Username or E-mail:</label>
+                    <input type="text" id="login-identifier" name="identifier" required minlength="3" maxlength="50">
+
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" name="password" required minlength="8" maxlength="75">
+
+                    <button type="submit">Login</button>
+
+                    <h4 id="login-prompt">Don't have an account?
+                    + Click <a href="#" onclick="
+                    document.getElementById('login-container').style.display='none';
+                    document.getElementById('sign-up-container').style.display='flex'">here</a></h4>
+                </form>
+             </div>
+             
+        </div>
+    </main>
+
+    
+    <script src="../js/auth.js"></script>
+</body>
+</html>

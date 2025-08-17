@@ -10,8 +10,8 @@ const globalURL = "https://rts-xdbm.onrender.com/";
 // signup function
 async function signUp(payload) {
     try {
-        const response = await fetch(globalURL + "/api/v1/rts/auth/register", {
-            method: "POST",
+        const response = await fetch(globalURL + "/api/v1/rts/auth/passenger/register", {
+            method: 'POST',
             headers: {
                 "Content-Type": "application/json"
             },
@@ -90,7 +90,7 @@ loginForm.addEventListener('submit', function(event) {
 
     async function getLogin() {
         try {
-            const loginResponse = await fetch(globalURL + '/api/v1/rts/auth/login', {
+            const loginResponse = await fetch(globalURL + '/api/v1/rts/auth/passenger/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

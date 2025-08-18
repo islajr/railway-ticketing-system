@@ -141,8 +141,8 @@ passengerBtn.addEventListener('click', (e) => {
     e.preventDefault();
     console.log("passenger role selected");
     document.getElementById('role-choice').style.display = "none";
-    signupContainer.style.display = "flex";
-    loginContainer.style.display = "none";
+    signupContainer.style.display = "none";
+    loginContainer.style.display = "flex";
 
 })
 
@@ -150,6 +150,6 @@ adminBtn.addEventListener('click', (e) => {
     e.preventDefault();
     console.log("admin role selected");
     document.getElementById('role-choice').style.display = "none";
-    adminSignupContainer.style.display = "flex";
-    adminLoginContainer.style.display = "none";
+    adminSignupContainer.style.display = "none";
+    adminLoginContainer.style.display = "flex";
 })

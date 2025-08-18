@@ -10,7 +10,7 @@ const globalURL = "https://rts-xdbm.onrender.com/";
 /* functions */
 
 // signup function
-async function signUp(payload) {
+async function register(payload) {
     try {
         const response = await fetch(globalURL + "/api/v1/rts/auth/passenger/register", {
             method: 'POST',
@@ -76,7 +76,7 @@ signUp.addEventListener('submit', function(event) {
                 "password": password
             });
     
-    signUp(payload);
+    register(payload);
 
     
 });
@@ -135,10 +135,10 @@ loginForm.addEventListener('submit', function(event) {
 });
 
 // role selection logic
-passengerBtn.addEventListener('logic', (e) => {
+passengerBtn.addEventListener('click', (e) => {
     e.preventDefault();
     console.log("passenger role selected");
-    document.getElementById('role-choice').display = "none";
+    document.getElementById('role-choice').style.display = "none";
     signupContainer.style.display = "flex";
     loginContainer.style.display = "none";
 

@@ -7,7 +7,7 @@
     /* height: 100vh; */
 }
 
-#sign-up-form, #login-form {
+#sign-up-form, #login-form, #admin-signup-form, #admin-login-form {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -35,6 +35,6 @@
 }
 
 
-#login-container, #sign-up-container {
+#login-container, #sign-up-container, #admin-login-container, #admin-signup-container {
     display: none; /* Initially hidden */
 }

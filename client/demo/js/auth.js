@@ -2,6 +2,8 @@ const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('sign-up-form');
 const signupContainer = document.getElementById('sign-up-container');
 const loginContainer = document.getElementById('login-container');
+const adminSignupContainer = document.getElementById('admin-signup-container');
+const adminLoginContainer = document.getElementById('admin-login-container');
 const signUp = document.getElementById('signup-submit-button');
 const passengerBtn  = document.getElementById('passenger-role-btn');
 const adminBtn = document.getElementById('admin-role-btn');
@@ -142,4 +144,12 @@ passengerBtn.addEventListener('click', (e) => {
     signupContainer.style.display = "flex";
     loginContainer.style.display = "none";
 
+})
+
+adminBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    console.log("admin role selected");
+    document.getElementById('role-choice').style.display = "none";
+    adminSignupContainer.style.display = "flex";
+    adminLoginContainer.style.display = "none";
 })

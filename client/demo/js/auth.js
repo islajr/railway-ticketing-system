@@ -3,6 +3,8 @@ const signupForm = document.getElementById('sign-up-form');
 const signupContainer = document.getElementById('sign-up-container');
 const loginContainer = document.getElementById('login-container');
 const signUp = document.getElementById('signup-submit-button');
+const passengerBtn  = document.getElementById('passenger-role-btn');
+const adminBtn = document.getElementById('admin-role-btn');
 const globalURL = "https://rts-xdbm.onrender.com/";
 
 /* functions */
@@ -131,3 +133,13 @@ loginForm.addEventListener('submit', function(event) {
     }
     getLogin();
 });
+
+// role selection logic
+passengerBtn.addEventListener('logic', (e) => {
+    e.preventDefault();
+    console.log("passenger role selected");
+    document.getElementById('role-choice').display = "none";
+    signupContainer.style.display = "flex";
+    loginContainer.style.display = "none";
+
+})

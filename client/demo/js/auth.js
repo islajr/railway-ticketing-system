@@ -7,7 +7,7 @@ const adminLoginContainer = document.getElementById('admin-login-container');
 const signUp = document.getElementById('signup-submit-button');
 const passengerBtn  = document.getElementById('passenger-role-btn');
 const adminBtn = document.getElementById('admin-role-btn');
-const globalURL = "https://rts-xdbm.onrender.com/";
+const globalURL = "https://rts-xdbm.onrender.com";
 
 /* functions */
 
@@ -57,9 +57,6 @@ async function register(payload) {
 /* main code */
 
 // signup form submission handler
-document.getElementById('sign-up-form').addEventListener('submit', (e) => {
-    e.preventDefault(); // prevent default form submission
-})
 signUp.addEventListener('submit', function(event) {
     event.preventDefault();
     const firstname = document.getElementById('signup-firstname').value;
@@ -74,7 +71,7 @@ signUp.addEventListener('submit', function(event) {
                 "lastName": lastname,
                 "email": email,
                 "country": country,
-                "phoneNumber": phoneNumber,
+                "phone": phoneNumber,
                 "password": password
             });
     

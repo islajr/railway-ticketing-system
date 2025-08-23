@@ -136,7 +136,7 @@ async function getLogin(identifier, password) {
                     alert("Login successful!");
                     localStorage.setItem('accessToken', loginData.accessToken);
                     localStorage.setItem('refreshToken', loginData.refreshToken);
-                    window.location.href = '../html/home.html';
+                    window.location.href = '../html/passenger-home.html';
                     break;
             }        
         } catch (error) {
@@ -179,7 +179,7 @@ async function adminLogin(identifier, password) {
                     alert("Login successful!");
                     localStorage.setItem('accessToken', loginData.accessToken);
                     localStorage.setItem('refreshToken', loginData.refreshToken);
-                    window.location.href = '../html/home.html';
+                    window.location.href = '../html/admin-home.html';
                     break;
             }        
         } catch (error) {

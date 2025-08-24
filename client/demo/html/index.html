@@ -11,7 +11,7 @@
         <h1>Railway Ticketing System</h1>
     </header>
      <main>
-        <div class="main-container">
+        <div class="main-container index-container" >
             <div class="auth-container" id="role-choice">
                 <h2>Please select your role to proceed</h2>
                 <div class="role-container">
@@ -46,7 +46,7 @@
                     </select>
 
                     <label for="phone-number">Phone Number (+234):</label>
-                    <input type="text" class="signup-text" id="phone-number" name="phone-number" required  maxlength="11">
+                    <input type="text" class="signup-text" id="phone-number" name="phone-number" required  maxlength="11" placeholder="080...">
                     
                     <label for="signup-password">Password:</label>
                     <input type="password" id="signup-password" name="signup-password" required minlength="8" maxlength="75" a>
@@ -88,7 +88,7 @@
             </div>
 
             <!-- admin login form -->
-             <div class="auth-container" id="admin-login-container" hidden>
+             <div class="auth-container" id="admin-login-container">
                 <h2>Login</h2>
                 <form action="" method="post" hidden id="admin-login-form">
                     <label for="admin-login-identifier">E-mail:</label>
@@ -107,7 +107,7 @@
              </div>
 
             <!-- Login form -->
-             <div class="auth-container" id="login-container" hidden>
+             <div class="auth-container" id="login-container">
                 <h2>Login</h2>
                 <form action="" method="post" hidden id="login-form">
                     <label for="login-identifier">E-mail:</label>

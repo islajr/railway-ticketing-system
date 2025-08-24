@@ -9,6 +9,7 @@ const adminSignUpForm = document.getElementById('admin-signup-form');
 const adminLoginForm = document.getElementById('admin-login-form');
 const passengerBtn  = document.getElementById('passenger-role-btn');
 const adminBtn = document.getElementById('admin-role-btn');
+const logoutFeature = document.querySelector('.logout-feature');
 const globalURL = "https://rts-xdbm.onrender.com";
 
 /* functions */
@@ -188,6 +189,53 @@ async function adminLogin(identifier, password) {
         }
     }
 
+// logout function
+async function logout() {
+    try {
+        const accessToken = localStorage.getItem('accessToken');
+        const response = await fetch(globalURL + '/api/v1/rts/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        switch (response.status) {
+            case Number (400):
+                alert("please check your request.");
+                break;
+            case Number (401):
+                refreshToken(); // refresh token
+                logout(); // retry logout
+                break;
+            case Number (403):
+                alert("you are forbidden from accessing this resource");
+                break;    
+            case Number (404):
+                alert("not found!");
+                break;
+            case Number (500):
+                alert("there was a problem on our end - please try again.");
+                break;
+            case Number (200):
+                console.log("successfully logged out.");
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                alert("you have successfully been logged out.");
+            
+                default: // otherwise
+                alert("something went wrong!");
+                console.log(response)
+                break;
+        }
+    }
+    catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while logging out. Please try again.');
+    }
+}    
+
 /* main code */
 
 // signup form submission handler
@@ -270,4 +318,10 @@ adminBtn.addEventListener('click', (e) => {
     document.getElementById('role-choice').style.display = "none";
     adminSignupContainer.style.display = "none";
     adminLoginContainer.style.display = "flex";
+})
+
+// logout logic
+logoutFeature.addEventListener('click', (e) => {
+    e.preventDefault();
+    logout();
 })

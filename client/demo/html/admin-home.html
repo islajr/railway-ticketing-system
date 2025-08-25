@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTS - Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <h1><a href="./admin-home.html" class="logo">Railway Ticketing Service</a></h1>
+        <nav>
+            <ul>
+                <li class="nav-item"><a href="#">Home</a></li>
+                <li class="nav-item"><a href="#">Trains</a></li>
+                <li class="nav-item"><a href="#">Stations</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="admin-container">
+            <div class="methods-section">
+                <div class="admin-actions">
+                    <div class="first-step">
+                        <h1>Where to?</h1>
+                        <button type=button class="admin-state-selector" id="admin-state-selector-train" >Train</button>
+                        <button type=button class="admin-state-selector" id="admin-state-selector-schedule">Train Schedule</button>
+                        <button type=button class="admin-state-selector" id="admin-state-selector-station">Station</button>
+                    </div>
+                    <!-- second step: trains -->
+                    <div class="second-step" id="train-action-methods" hidden>
+                        <h1>Available actions for Trains:</h1>
+                        <div class="method-cluster">
+                            <label for="train-methods"></label>
+                            <select name="train-methods" id="train-methods">
+                            <option value="add-train">Add train</option>
+                            <option value="edit-train">Edit train</option>
+                            <option value="view-train">View train</option>
+                            <option value="view-all-trains">View all trains</option>
+                            <option value="delete-train">Delete train</option>
+
+                            </select>
+                        </div>
+                        <button type="button">Proceed</button>
+                    </div>
+                    <!-- second step: train schedules -->
+                    <div class="second-step" id="train-schedule-action-methods" hidden>
+                        <h1>Available actions for Train Schedules:</h1>
+                        <div class="method-cluster">
+                            <label for="train-schedule-methods"></label>
+                            <select name="train-schedule-methods" id="train-schedule-methods">
+                            <option value="add-train-schedule">Add train schedule</option>
+                            <option value="edit-train-schedule">Edit train schedule</option>
+                            <option value="view-train-schedule">View train schedule</option>
+                            <option value="delete-train-schedule">Delete train schedule</option>
+                            
+                            </select>
+                        </div>
+                        <button type="button">Proceed</button>
+                    </div>
+                    <!-- second step: train stations -->
+                    <div class="second-step" id="train-station-action-methods" hidden>
+                        <h1>Available actions for Stations:</h1>
+                        <div class="method-cluster">
+                            <label for="station-methods"></label>
+                            <select name="train-station-methods" id="train-schedule-methods">
+                            <option value="add-train-station">Add train station</option>
+                            <option value="edit-train-station">Edit train station</option>
+                            <option value="view-train-station">View train station</option>
+                            <option value="view-all-train-stations">View all train stations</option>
+                            <option value="delete-train-station">Delete train station</option>
+                            
+                            </select>
+                        </div>
+                        <button type="button">Proceed</button>
+                    </div>      
+                    
+                </div>
+            </div>
+
+            <div class="method-display-section">
+                <!-- train section -->
+                <!-- adding new train -->
+                <div class="add-train-section" hidden>
+
+                </div>
+
+                <!-- editing train section -->
+                <div class="edit-train-section" hidden>
+
+                </div>
+
+                <!-- viewing train section -->
+                <div class="view-train-section" hidden>
+
+                </div>
+
+                <!-- viewing all trains section -->
+                <div class="view-all-trains-section" hidden>
+
+                </div>
+
+                <!-- train schedules section -->
+                <!-- deleting train schedule section -->
+                <div class="delete-train-section">
+
+                </div>
+
+                <!-- adding new train schedule -->
+                <div class="add-train-schedule-section" hidden>
+
+                </div>
+
+                <!-- editing train schedule section -->
+                <div class="edit-train-schedule-section" hidden>
+
+                </div>
+
+                <!-- viewing train schedule section -->
+                <div class="view-train-schedule-section" hidden>
+
+                </div>
+
+                <!-- deleting train schedule section -->
+                <div class="delete-train-schedule-section">
+
+                </div>
+
+                <!-- train station section -->
+                 <!-- adding new train station -->
+                <div class="add-train-station-section" hidden>
+
+                </div>
+
+                <!-- editing train station section -->
+                <div class="edit-train-station-section" hidden>
+
+                </div>
+
+                <!-- viewing train station section -->
+                <div class="view-train-station-section" hidden>
+
+                </div>
+
+                <!-- viewing all train stations section -->
+                <div class="view-all-train-stations-section" hidden>
+
+                </div>
+
+                <!-- deleting train station section -->
+                <div class="delete-train-station-section">
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

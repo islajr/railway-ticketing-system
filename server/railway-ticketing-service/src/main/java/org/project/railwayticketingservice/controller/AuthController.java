@@ -85,4 +85,9 @@ public class AuthController {
     public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request) {
         return authService.loginAdmin(request);
     }
+
+    @PostMapping("/ping")
+    public void ping() {
+        System.out.println("ping received!");
+    }
 }

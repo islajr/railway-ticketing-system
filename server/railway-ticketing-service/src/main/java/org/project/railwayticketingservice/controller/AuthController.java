@@ -86,7 +86,7 @@ public class AuthController {
         return authService.loginAdmin(request);
     }
 
-    @PostMapping("/ping")
+    @RequestMapping("/ping")
     public void ping() {
         System.out.println("ping received!");
     }

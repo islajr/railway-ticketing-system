@@ -10,6 +10,7 @@ const adminLoginForm = document.getElementById('admin-login-form');
 const passengerBtn  = document.getElementById('passenger-role-btn');
 const adminBtn = document.getElementById('admin-role-btn');
 const logoutFeature = document.querySelector('.logout-feature');
+const welcomeGreeting = document.querySelector(".welcome-greeting");
 const globalURL = "https://rts-xdbm.onrender.com";
 
 /* functions */
@@ -134,7 +135,7 @@ async function getLogin(identifier, password) {
                 default:
                     // if no errors...
                     const loginData = await loginResponse.json();
-                    alert("Login successful!");
+                    alert("login successful!");
                     localStorage.setItem('accessToken', loginData.accessToken);
                     localStorage.setItem('refreshToken', loginData.refreshToken);
                     window.location.href = '../html/passenger-home.html';
@@ -234,7 +235,12 @@ async function logout() {
         console.error('Error:', error);
         alert('An error occurred while logging out. Please try again.');
     }
-}    
+}
+
+function welcome(firstName) {
+
+    welcomeGreeting.textContent = `Welcome, ${firstName}!`
+}
 
 /* main code */
 

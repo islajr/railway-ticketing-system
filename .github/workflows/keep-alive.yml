@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping RTS on Render
-        run: curl -s https://rts-xdbm.onrender.com/ > /dev/null
+        run: curl -s https://rts-xdbm.onrender.com/api/v1/rts/auth/ping > /dev/null

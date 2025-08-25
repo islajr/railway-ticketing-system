@@ -28,7 +28,7 @@
 }
 
 .role-button:hover {
-    background-color: #0056b3;
+    background-color: lightblue;
     color: white;
     cursor: pointer;
 
@@ -47,6 +47,7 @@ header {
     justify-content: space-between;
     width: 100%;
     position: fixed;
+    align-items: center;
     top: 0;
     left: 0;
     z-index: 1000; /* ensures it stays above other elements */
@@ -58,10 +59,11 @@ header {
 
 main {
     width: 100%;
+    height: 100%;
 }
 
 header > nav {
-    width: 30%;
+    width: 25%;
 }
 
 header > nav > ul {
@@ -74,25 +76,139 @@ header > nav > ul {
     list-style: none;
 }
 
+.nav-item > a {
+    text-decoration: none;
+    color: black;
+}
+
+.nav-item > a:hover {
+    color: gray;
+}
+
 .home-container {
     display: flex;
     flex-direction: row;
     width: 100%;
+    height: 100%;
 }
 
 .home-container > aside {
     width: 20%;
-    background-color: green;
+    min-height: 100%;
 }
 
 .home-container > section {
     width: 60%;
-    background-color: yellow;
+    min-height: 100%;
 }
 
 .home-container > section + aside {
     width: 20%;
-    background-color: red;
+}
+
+.logo {
+    text-decoration: none;
+    color: black;
+}
+
+.logo:active {
+    color: black;
+}
+
+.logo::after {
+    color: black;
+}
+
+.hero-section-container, .aside-container{
+    padding-top: 100px;
+}
+
+.hero-section-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-section-container > h1 {
+
+    font-size: xx-large;
+}
+
+.hero-description {
+    padding-left: 30%;
+    padding-right: 30%;
+    margin-top: -2px;
+    font-weight: bold;
+    font-size: large;
+    text-align: center;
+}
+
+.features-container {
+    width: 70%;
+    display: flex;
+    justify-content: space-between;
+    gap: 5%;
+    padding: 1% 20
+}
+
+.home-feature {
+    text-decoration-line: none;
+    color: black;
+    font-weight: 700;
+    font-family: 'SF Pro Display';
 }
 
 
+.features-card {
+    width: 100%;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+
+.features-card > button {
+    height: 55px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: aqua;
+    width: 100%;
+    background-color: white;
+}
+
+.features-card > button:hover {
+    background-color: lightblue;
+}
+
+/* admin page styling */
+
+#admin-container {
+    padding-top: 100px;
+}
+
+.methods-section {
+    display: flex;
+    justify-content: space-evenly;
+    text-align: center;
+}
+
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-action {
+    text-decoration-line: none;
+    color: black;
+}
+
+.first-step > button {
+
+}
+
+.method-cluster {
+    margin-bottom: 15px;
+}

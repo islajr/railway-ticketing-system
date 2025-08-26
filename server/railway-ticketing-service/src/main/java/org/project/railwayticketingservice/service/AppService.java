@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.response.HomePageResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
+import org.project.railwayticketingservice.dto.app.response.UserDetailsResponse;
 import org.project.railwayticketingservice.entity.*;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
@@ -30,6 +31,10 @@ public class AppService {
         List<Schedule> upcomingSchedules = scheduleRepository.findSchedulesByDepartureTimeBetween(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
 
         return ResponseEntity.ok(HomePageResponse.builder()
+                        .userDetails(UserDetailsResponse.builder()
+                                .firstName(passenger.getFirstName())
+                                .lastName(passenger.getLastName())
+                                .build())
                         .reservations(reservations.stream()
                                 .map(reservation -> ReservationResponse.builder()
                                         .reservationId(reservation.getId())

@@ -82,17 +82,61 @@
                 <!-- train section -->
                 <!-- adding new train -->
                 <div class="add-train-section" hidden>
-
+                    <h1>Add new train</h1>
+                    <label for="add-new-train">
+                        <div class="new-train-name">
+                            <h3>Name:</h3>
+                            <input type="text" placeholder="Enter name:">
+                        </div>
+                        <div class="new-train-capacity">
+                            <h3>Capacity:</h3>
+                            <input type="text" value="1040" placeholder="1040" disabled>
+                        </div>
+                        <button type="submit">Submit</button>
+                    </label>
                 </div>
 
                 <!-- editing train section -->
-                <div class="edit-train-section" hidden>
-
+                <div class="edit-train-section">
+                    <h2>Train Search:</h2>
+                    <label for="search-train">
+                        <input type="text" name="" id="search-train-field" placeholder="Input name here:">
+                        <div class="search-train-results">
+                            <div class="search-train-results-name">
+                                <h3 class="train-details-name-name">Name: </h3>
+                                <button type="button">Edit</button>
+                                <label for="edit-train-name" id="edit-train-name-ui" hidden>
+                                    <input type="text" id="edit-train-name" placeholder="Enter new train name">
+                                    <button type="submit">Submit</button>
+                                </label>
+                            </div>
+                            <h3 class="train-details-id">Id: </h3>
+                            <div class="search-train-results-isActive">
+                                <h3 class="train-details-isActive">isActive: </h3>
+                                <button type="button">Edit</button>
+                                <label for="edit-train-isActive" id="edit-train-isActive-ui" hidden>
+                                    <select name="edit-train-isActive" id="edit-train-isActive">
+                                        <option value="true">True</option>
+                                        <option value="false">False</option>
+                                    </select>
+                                    <button type="submit">Submit</button>
+                                </label>
+                            </div>
+                            <div class="search-train-results-capacity">
+                                <h3 class="train-details-capacity">Capacity:</h3>
+                                <button type="button" hidden>Edit</button>
+                                <label for="edit-train-capacity" id="edit-train-capacity" hidden>
+                                    <!-- input some sort of capacity changer here when editing is supported -->
+                                    <button type="submit">Submit</button>
+                                </label>
+                            </div>
+                        </div>
+                    </label>
                 </div>
 
                 <!-- viewing train section -->
                 <div class="view-train-section" hidden>
-
+                    
                 </div>
 
                 <!-- viewing all trains section -->

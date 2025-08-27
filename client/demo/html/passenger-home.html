@@ -58,8 +58,6 @@
                 <!-- Ticket booking section -->
                 <div class="ticket-booking-section" hidden>
                     <h1>Book your tickets</h1>
-                        search for schedules
-                        select schedule
                     <div id="schedule-filters">
                         <button type="button" class="schedule-filter" id="schedule-filter-origin">By Origin</button>
                         <button type="button" class="schedule-filter" id="schedule-filter-destination">By Destination</button>
@@ -80,18 +78,36 @@
                 <div id="schedule-display-section">
                     <h2>Train: </h2>
                     <h2>Schedule: </h2>
+                    <h2>Origin: </h2>
+                    <h2>Destination: </h2>
+                    <h2>Capacity: </h2>
+                    <h2>isFull: </h2>
+                    <h2>Departure time: </h2>
+                    <h2>Arrival time: </h2>
+                    <h2>Available seats: </h2>
+                    <select name="schedule-available-seats" id="schedule-available-seats">
+                        <option value="" class="schedule-available-seat"></option>
+                    </select>
+                    <button type="submit">Reserve</button>
                 </div>
 
                 <!-- Ticket viewing section -->
                 <div class="ticket-viewing-section" hidden>
-                    <h1>View your tickets</h1>
+                    <h1>Your tickets: </h1>
                     show users entire tickets
                     show specific ticket
-                </div>
+                    <div id="passenger-tickets">
+                        <div class="passenger-ticket"></div>
+                    </div>
+                    <div id="passenger-ticket">
+                        <h2>Train: </h2>
+                        <h2>#</h2>
+                        <h2>Seat: </h2>
+                        <h2>Origin</h2>
+                        <h2>Time: </h2>
 
-                <!-- Ticket deletion section -->
-                <div class="ticket-deletion-section" hidden>
-                    <h1>Delete your tickets</h1>
+                        <button type="submit">Delete Ticket</button>
+                    </div>
                 </div>
             </section>
             <aside>

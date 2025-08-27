@@ -58,12 +58,35 @@
                 <!-- Ticket booking section -->
                 <div class="ticket-booking-section" hidden>
                     <h1>Book your tickets</h1>
+                        search for schedules
+                        select schedule
+                    <div id="schedule-filters">
+                        <button type="button" class="schedule-filter" id="schedule-filter-origin">By Origin</button>
+                        <button type="button" class="schedule-filter" id="schedule-filter-destination">By Destination</button>
+                        <button type="button" class="schedule-filter" id="schedule-filter-all">All</button>
+                    </div>
+                    <div id="schedule-search">
+                        <input type="text" name="train-schedule-search" id="train-schedule-search-origin" placeholder="where are you going from?">
+                        <input type="text" name="train-schedule-search" id="train-schedule-search-destination" placeholder="where are you going?">  
+                    </div>
+                    
+                    <div id="schedule-filter-results">
+                        <div class="schedule-filter-result">'
+                            
+                        </div>
+                    </div>
+                </div>
 
+                <div id="schedule-display-section">
+                    <h2>Train: </h2>
+                    <h2>Schedule: </h2>
                 </div>
 
                 <!-- Ticket viewing section -->
                 <div class="ticket-viewing-section" hidden>
                     <h1>View your tickets</h1>
+                    show users entire tickets
+                    show specific ticket
                 </div>
 
                 <!-- Ticket deletion section -->

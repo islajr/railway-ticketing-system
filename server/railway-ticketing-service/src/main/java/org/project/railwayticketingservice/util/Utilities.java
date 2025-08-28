@@ -25,8 +25,8 @@ public class Utilities {
 
     public List<Schedule> getSchedules(String filter, GetTrainScheduleRequest request){
 
-        Station origin = stationRepository.getStationByName(request.origin());
-        Station destination = stationRepository.getStationByName(request.destination());
+        Station origin = stationRepository.findStationByName(request.origin());
+        Station destination = stationRepository.findStationByName(request.destination());
 
         switch (filter) {
             case "origin" -> {
@@ -47,8 +47,8 @@ public class Utilities {
 
     public List<Schedule> getSchedules(String filter1, String filter2, GetTrainScheduleRequest request){
 
-        Station origin = stationRepository.getStationByName(request.origin());
-        Station destination = stationRepository.getStationByName(request.destination());
+        Station origin = stationRepository.findStationByName(request.origin());
+        Station destination = stationRepository.findStationByName(request.destination());
 
         switch (filter1) {
             case "origin" -> {     // second filter can either be destination or time

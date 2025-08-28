@@ -102,7 +102,7 @@ public class ReservationController {
 
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id, @RequestBody ReservationUpdateRequest request) {
+    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable String id, @RequestBody ReservationUpdateRequest request) {
         return reservationService.updateReservation(id, request);
     }
 

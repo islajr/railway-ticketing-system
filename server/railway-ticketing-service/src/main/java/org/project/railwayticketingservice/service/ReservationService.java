@@ -35,7 +35,7 @@ public class ReservationService {
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Schedule schedule = scheduleRepository.findScheduleById(request.scheduleId());
-        ScheduleSeat seat = scheduleSeatRepository.findByLabel(request.preferredSeat());
+        ScheduleSeat seat = scheduleSeatRepository.findByScheduleAndLabel(schedule, request.preferredSeat());
         Reservation possibleReservation = reservationRepository.findReservationByScheduleAndPassenger(schedule, passenger);
 
         // check if the schedule is full anyway
@@ -170,7 +170,7 @@ public class ReservationService {
         if (!Objects.equals(reservation.getScheduleSeat().getLabel(), request.preferredSeat())) {   // check for seat mismatch
 
             // check for availability
-            ScheduleSeat newSeat = scheduleSeatRepository.findByLabel(request.preferredSeat().toUpperCase().strip());
+            ScheduleSeat newSeat = scheduleSeatRepository.findByScheduleAndLabel(reservation.getSchedule(), request.preferredSeat().toUpperCase().strip());
 
             if (newSeat != null) {
                 if ((!newSeat.isReserved()) && newSeat.getReservation() == null) {    // if seat is free

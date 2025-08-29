@@ -59,7 +59,7 @@ public class TrainController {
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<NewTrainResponse>> getAllTrains() {
         return trainService.getAllTrains();
     }

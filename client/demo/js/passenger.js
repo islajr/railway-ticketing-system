@@ -2,6 +2,16 @@ const welcomeGreeting = document.querySelector(".welcome-greeting");
 const reservationsList = document.getElementById("aside-reservations-list");
 const asideSchedulesList = document.getElementById("aside-schedules-list")
 const logoutFeature = document.querySelector(".logout-feature")
+const heroSectionContainer = document.querySelector(".hero-section-container");
+const homeBookTicket = document.getElementById("home-book-a-ticket");
+const homeViewTickets = document.getElementById("home-view-tickets");
+const homeCancelTickets = document.getElementById("home-cancel-ticket");
+const ticketBookingSection = document.querySelector(".ticket-booking-section");
+const originScheduleFilter = document.getElementById("schedule-filter-origin");
+const destinationScheduleFilter = document.getElementById("schedule-filter-destination");
+const allScheduleFilter = document.getElementById("schedule-filter-all");
+const originScheduleSearch = document.getElementById("train-schedule-search-origin");
+const destinationScheduleSearch = document.getElementById("train-schedule-search-destination");
 const globalURL = "https://rts-xdbm.onrender.com";
 
 
@@ -95,3 +105,35 @@ logoutFeature.addEventListener('click', (e) => {
     e.preventDefault();
     logout();
 });
+
+homeBookTicket.addEventListener('click', (e) => {
+    e.preventDefault();
+    ticketBookingSection.hidden = false;
+});
+
+homeViewTickets.addEventListener('click', (e) => {
+
+});
+
+homeCancelTickets.addEventListener('click', (e) => {
+
+});
+
+originScheduleFilter.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    originScheduleSearch.hidden = false;
+})
+
+destinationScheduleFilter.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    destinationScheduleSearch.hidden = false;
+})
+
+allScheduleFilter.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    originScheduleSearch.hidden = false;
+    destinationScheduleSearch.hidden = false;
+})

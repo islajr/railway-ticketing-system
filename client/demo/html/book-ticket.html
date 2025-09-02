@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="html-title">RTS - Book Tickets</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Railway Ticketing System</h1>
+        <nav>
+            <ul>
+                <li class="nav-item"><a href="passenger-home.html">Home</a></li>
+                <li class="nav-item"><a href="./action.html">Book Ticket</a></li>
+                <li class="nav-item"><a href="./action.html">View Tickets</a></li>
+                <li class="nav-item"><a href="./action.html">Cancel Tickets</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="main-container home-container">
+            <aside>
+                <div class="aside-container">  
+                    <div class="user-info">
+                        <!-- placeholder -->
+                        <p class="welcome-greeting"></p>
+                    </div>
+                    <div id="aside-reservations">
+                        <ul id="aside-reservations-list">
+
+                        </ul>       
+                    </div>
+                    <button type="button" class="logout-feature">Logout</button>
+                </div>
+            </aside>
+
+            <section>
+                <div class="hero-section-container">
+                    <div id="ticket-booking-section">
+                        <div class="ticket-booking-section-intro">
+                            <h1>Ticket Booking Section</h1>
+                            <p>Make your reservations here.</p>
+                        </div>
+                        
+                        <!-- schedule search filter selection -->
+                        <form id="schedule-search-filter-form">
+                            <h3>Search by:</h3>
+                            <p>Select all that apply</p>
+                            <label for="schedule-search-filter-origin">
+                                <input type="checkbox" name="Origin" class="schedule-search-filter-checkbox" id="schedule-search-filter-origin"> Origin 
+                            </label>
+                            <label for="schedule-search-filter-destination">
+                                <input type="checkbox" name="Destination" class="schedule-search-filter-checkbox" id="schedule-search-filter-destination"> Destination
+                            </label>
+                            <label for="schedule-search-filter-departure">
+                                <input type="checkbox" name="Departure time" class="schedule-search-filter-checkbox" id="schedule-search-filter-all"> All 
+                            </label>
+                        </form>
+
+                        <!-- schedule search fields section -->
+                        <div id="schedule-search-fields" hidden>
+                            <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-origin" placeholder="Where from?" hidden>
+                            <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-destination" placeholder="Where to?" hidden>
+                            <!-- <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-time" placeholder="Departure time?">   should switch for something else laters -->
+                        </div>
+                        <!-- schedule search results section -->
+                        <div id="schedule-search-results" hidden>
+                            
+                        </div>
+                        <!-- schedule display section -->
+                        <div id="schedule-display-section" hidden>
+                            <h2>Train: </h2>
+                            <h2>Schedule: </h2>
+                            <h2>Origin: </h2>
+                            <h2>Destination: </h2>
+                            <h2>Capacity: </h2>
+                            <h2>isFull: </h2>
+                            <h2>Departure time: </h2>
+                            <h2>Arrival time: </h2>
+                            <h2>Available seats: </h2>
+                            <select name="schedule-available-seats" id="schedule-available-seats">
+                                <!-- <option value="" class="schedule-available-seat"></option> -->
+                            </select>
+                            <button type="submit">Reserve</button>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+             <aside>
+                <div class="aside-container">
+                    <h2>Train Schedules</h2>
+                    <div class="train-schedules-container">
+                        <ul id="aside-schedules-list">
+                            
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+    <script src="../js/passenger.js"></script>
+</body>
+</html>

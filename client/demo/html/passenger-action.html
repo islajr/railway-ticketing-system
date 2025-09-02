@@ -38,56 +38,7 @@
 
             <section>
                 <div class="hero-section-container">
-                    <div id="ticket-booking-section" hidden>
-                        <div class="ticket-booking-section-intro" hidden>
-                            <h2>Ticket Booking Section</h2>
-                            <p>Make your reservations here.</p>
-                        </div>
-                        
-                        <!-- schedule search filter selection -->
-                        <form id="schedule-search-filter-form" hidden>
-                            <h3>Search by:</h3>
-                            <p>Select all that apply</p>
-                            <label for="schedule-search-filter-origin">
-                                <input type="radio" name="Origin" class="schedule-search-filter-radio" id="schedule-search-filter-origin"> Origin 
-                            </label>
-                            <label for="schedule-search-filter-destination">
-                                <input type="radio" name="Destination" class="schedule-search-filter-radio" id="schedule-search-filter-destination"> Destination
-                            </label>
-                            <label for="schedule-search-filter-departure">
-                                <input type="radio" name="Departure time" class="schedule-search-filter-radio" id="schedule-search-filter-all"> All 
-                            </label>
-                        </form>
-
-                        <!-- schedule search fields section -->
-                        <div id="schedule-search-fields" hidden>
-                            <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-origin" placeholder="Where from?" hidden>
-                            <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-destination" placeholder="Where to?" hidden>
-                            <!-- <input type="text" name="ticket-booking-schedule-search" class="ticket-booking-schedule-search-field" id="ticket-booking-schedule-search-time" placeholder="Departure time?">   should switch for something else laters -->
-                        </div>
-                        <!-- schedule search results section -->
-                        <div id="schedule-search-results" hidden>
-                            
-                        </div>
-                        <!-- schedule display section -->
-                        <div id="schedule-display-section" hidden>
-                            <h2>Train: </h2>
-                            <h2>Schedule: </h2>
-                            <h2>Origin: </h2>
-                            <h2>Destination: </h2>
-                            <h2>Capacity: </h2>
-                            <h2>isFull: </h2>
-                            <h2>Departure time: </h2>
-                            <h2>Arrival time: </h2>
-                            <h2>Available seats: </h2>
-                            <select name="schedule-available-seats" id="schedule-available-seats">
-                                <!-- <option value="" class="schedule-available-seat"></option> -->
-                            </select>
-                            <button type="submit">Reserve</button>
-                        </div>
-
-                    </div>
-                    <div id="ticket-viewing-section" hidden>
+                    <div id="ticket-viewing-section">
                         <!-- view all passenger's tickets -->
                         <div id="ticket-viewing-all">
                             <h2>Reservation Tickets</h2>

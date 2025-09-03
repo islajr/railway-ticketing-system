@@ -6,12 +6,14 @@ const heroSectionContainer = document.querySelector(".hero-section-container");
 const homeBookTicket = document.getElementById("home-book-a-ticket");
 const homeViewTickets = document.getElementById("home-view-tickets");
 const homeCancelTickets = document.getElementById("home-cancel-ticket");
-const ticketBookingSection = document.querySelector(".ticket-booking-section");
-const originScheduleFilter = document.getElementById("schedule-filter-origin");
-const destinationScheduleFilter = document.getElementById("schedule-filter-destination");
-const allScheduleFilter = document.getElementById("schedule-filter-all");
-const originScheduleSearch = document.getElementById("train-schedule-search-origin");
-const destinationScheduleSearch = document.getElementById("train-schedule-search-destination");
+const ticketBookingSection = document.querySelector("#ticket-booking-section");
+const scheduleSearchFilterForm = document.getElementById("schedule-search-filter-form");
+const originScheduleFilter = document.getElementById("schedule-search-filter-origin");
+const destinationScheduleFilter = document.getElementById("schedule-search-filter-destination");
+const allScheduleFilter = document.getElementById("schedule-search-filter-all");
+const scheduleSearchFields = document.getElementById("schedule-search-fields");
+const scheduleSearchOrigin = document.getElementById("ticket-booking-schedule-search-origin");
+const scheduleSearchDestination = document.getElementById("ticket-booking-schedule-search-destination");
 const globalURL = "https://rts-xdbm.onrender.com";
 
 
@@ -106,34 +108,33 @@ logoutFeature.addEventListener('click', (e) => {
     logout();
 });
 
-homeBookTicket.addEventListener('click', (e) => {
-    e.preventDefault();
-    ticketBookingSection.hidden = false;
-});
+originScheduleFilter.addEventListener('change', (e) => {
+    if (e.target.checked) {
+        scheduleSearchFields.hidden = false;
+        scheduleSearchOrigin.hidden = false;
+    } else {
+        scheduleSearchOrigin.hidden = true;
+    }
 
-homeViewTickets.addEventListener('click', (e) => {
-
-});
-
-homeCancelTickets.addEventListener('click', (e) => {
-
-});
-
-originScheduleFilter.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    originScheduleSearch.hidden = false;
 })
 
 destinationScheduleFilter.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    destinationScheduleSearch.hidden = false;
+    if (e.target.checked) {
+        scheduleSearchFields.hidden = false;
+        scheduleSearchDestination.hidden = false;
+    } else {
+        scheduleSearchDestination.hidden = true;
+    }
 })
 
 allScheduleFilter.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    originScheduleSearch.hidden = false;
-    destinationScheduleSearch.hidden = false;
+    if (e.target.checked) {
+        scheduleSearchFields.hidden = false;
+        scheduleSearchOrigin.hidden = false;
+        scheduleSearchDestination.hidden = false;
+    } else {
+        scheduleSearchFields.hidden = true;
+        scheduleSearchOrigin.hidden =true;
+        scheduleSearchDestination.hidden = true;
+    }
 })

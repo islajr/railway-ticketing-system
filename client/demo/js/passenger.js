@@ -280,5 +280,12 @@ scheduleSearchDestination.addEventListener('input', (e) => {
     // assuming everything goes right...
     // TODO: populate the results section
 
-    
+    /* 
+     * a potential bottle neck would be performance.
+     * also, if both origin and destination are selected, users will expect results to be filtered.
+     * this poses a major problem as this would require some more level of tinkering and possible logic re-arrangement.
+     * some level of caching may be required also to boost response times.
+     * 
+     * TODO: test the logic extensively and optimize it.
+    */
 })

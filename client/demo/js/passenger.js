@@ -14,6 +14,7 @@ const allScheduleFilter = document.getElementById("schedule-search-filter-all");
 const scheduleSearchFields = document.getElementById("schedule-search-fields");
 const scheduleSearchOrigin = document.getElementById("ticket-booking-schedule-search-origin");
 const scheduleSearchDestination = document.getElementById("ticket-booking-schedule-search-destination");
+const scheduleSearchResults = document.getElementById("schedule-search-results");
 const globalURL = "https://rts-xdbm.onrender.com";
 
 
@@ -95,6 +96,127 @@ async function logout() {
     }
 }
 
+async function querySchedules(origin, destination) {
+    accessToken = localStorage.getItem("accessToken");
+
+    if (origin == null && destination == null) {
+        console.log("error: both origin and destination cannot be null");
+        // TODO: maybe return something?
+        
+    } else if (origin != null && destination != null) {     // if they both exist
+        try {
+            const response = await fetch(globalURL + "/api/v1/rts/app/schedule/search?filter1=origin&filter2=destination", {
+                method: "GET",
+                headers: {
+                    "Content-type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                }, 
+                body: {
+                    "origin": origin,
+                    "destination": destination,
+                    "time": null
+                }
+            })
+
+            switch(response.status) {
+            case Number (401):
+                alert("you are not authorized to access this resource!");
+                break;
+            case Number (403):
+                alert("you are forbidden from accessing this resource!");
+                break;    
+            case Number (500):
+                alert("there was a problem on our end - please try again!");
+                break;
+            case Number (200):
+                console.log("successfully returned the schedules!");
+                // TODO: populate the results somehow --  SEE LINE BELOW
+                return (await response.json()); // TODO: check on this later.
+            case Number (404):
+                alert("no schedules were found!");
+                break;
+            case Number (400):
+                alert("bad request. please check and try again!");
+                break;
+            default: // otherwise
+                alert("failed to get schedules for passenger!");
+                break;
+
+            }
+        } catch (error) {
+            console.log("error: ", error);
+            alert("failed to get schedules!")
+        }
+
+    } else {    // if any one of them exists
+
+        try {
+            
+            if (origin == null) {   // query only for destination
+                const response = await fetch(globalURL + "/api/v1/rts/app/schedule/search?filter1=destination", {
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }, 
+                    body: {
+                        "origin": null,
+                        "destination": destination,
+                        "time": null
+                    }
+                })
+                
+            } else if (destination == null) {   // query only for origin
+                
+                const response = await fetch(globalURL + "/api/v1/rts/app/schedule/search?filter1=origin", {
+                    method: "GET",
+                    headers: {
+                        "Content-type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
+                    }, 
+                    body: {
+                        "origin": origin,
+                        "destination": null,
+                        "time": null
+                    }
+                })
+
+            }
+
+            switch(response.status) {
+            case Number (401):
+                alert("you are not authorized to access this resource!");
+                break;
+            case Number (403):
+                alert("you are forbidden from accessing this resource!");
+                break;    
+            case Number (500):
+                alert("there was a problem on our end - please try again!");
+                break;
+            case Number (200):
+                console.log("successfully returned the schedules!");
+                // TODO: populate the results somehow
+                return (await response.json()); // TODO: check on this later.
+            case Number (404):
+                alert("no schedules were found!");
+                break;
+            case Number (400):
+                alert("bad request. please check and try again!");
+                break;
+            default: // otherwise
+                alert("failed to get schedules for passenger!");
+                break;
+            }
+
+        } catch (error) {
+            console.log("error: ", error);
+            alert("failed to get schedules");
+        }
+
+    }
+}
+
+
 /* main logic */
 
 // load homepage
@@ -137,4 +259,26 @@ allScheduleFilter.addEventListener('click', (e) => {
         scheduleSearchOrigin.hidden =true;
         scheduleSearchDestination.hidden = true;
     }
+})
+
+scheduleSearchOrigin.addEventListener('input', (e) => {
+    setTimeout(() => {
+        console.log("querying db for schedules with origin: " + e.target.value);
+        schedules = querySchedules(e.target.value, null);
+    }, 2000);
+
+    // assuming everything goes right...
+    // TODO: populate the results section
+})
+
+scheduleSearchDestination.addEventListener('input', (e) => {
+    setTimeout(() => {
+        console.log("querying db for schedules with destination: " + e.target.value);
+        schedules = querySchedules(e.target.value, null);
+    }, 2000);
+
+    // assuming everything goes right...
+    // TODO: populate the results section
+
+    
 })

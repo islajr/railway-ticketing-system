@@ -15,13 +15,15 @@ const scheduleSearchFields = document.getElementById("schedule-search-fields");
 const scheduleSearchOrigin = document.getElementById("ticket-booking-schedule-search-origin");
 const scheduleSearchDestination = document.getElementById("ticket-booking-schedule-search-destination");
 const scheduleSearchResults = document.getElementById("schedule-search-results");
+const passengerTicketsContainer = document.getElementById("ticket-viewing-all");
+const passengerTickets = document.getElementById("ticket-viewing-passenger-tickets");
 const globalURL = "https://rts-xdbm.onrender.com";
 
 
 /* functions and methods */
 async function loadHomePage() {
     accessToken = localStorage.getItem("accessToken");
-    
+    // TODO: implement caching later on
     try {
         const response = await fetch(globalURL + "/api/v1/rts/app/home", {
             method: 'GET',
@@ -312,3 +314,8 @@ scheduleSearchDestination.addEventListener('input', (e) => {
      * TODO: test the logic extensively and optimize it.
     */
 })
+
+if (passengerTicketsContainer.style.display != hidden) {
+    passengerTickets.innerHTML = "<p>this works?</p>";
+    console.log('this works!');
+}

@@ -219,3 +219,7 @@ header > nav > ul {
 .method-cluster {
     margin-bottom: 15px;
 }
+
+#ticket-viewing-all {
+    display: block;
+}

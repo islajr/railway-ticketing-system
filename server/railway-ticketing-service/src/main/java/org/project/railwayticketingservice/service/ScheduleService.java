@@ -48,8 +48,8 @@ public class ScheduleService {
             }
 
             // convert to station
-            Station origin = stationRepository.getStationByName(request.origin());
-            Station destination = stationRepository.getStationByName(request.destination());
+            Station origin = stationRepository.findStationByName(request.origin());
+            Station destination = stationRepository.findStationByName(request.destination());
 
             if (origin != null && destination != null) {
 
@@ -104,8 +104,8 @@ public class ScheduleService {
 
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
-        Station origin = stationRepository.getStationByName(request.origin());
-        Station destination = stationRepository.getStationByName(request.destination());
+        Station origin = stationRepository.findStationByName(request.origin());
+        Station destination = stationRepository.findStationByName(request.destination());
 
         if (schedule != null) {
 
@@ -135,8 +135,8 @@ public class ScheduleService {
 
     public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
         List<Schedule> schedules;
-        Station origin = stationRepository.getStationByName(request.origin());
-        Station destination = stationRepository.getStationByName(request.destination());
+        Station origin = stationRepository.findStationByName(request.origin());
+        Station destination = stationRepository.findStationByName(request.destination());
 
         if (filter3.equals("null")) {   // if filter3 is null
 

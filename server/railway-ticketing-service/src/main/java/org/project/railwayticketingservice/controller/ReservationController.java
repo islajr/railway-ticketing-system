@@ -60,7 +60,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<ReservationResponse>> viewAllReservations() {
         return reservationService.getAllReservations();
     }
@@ -87,7 +87,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Reservations do not exist"),
             @ApiResponse(responseCode = "400", description = "Bad request")
     })
-    @DeleteMapping("/all")
+    @DeleteMapping("")
     public ResponseEntity<AppResponse> cancelAllReservations() {
         return reservationService.deleteAllReservations();
     }
@@ -102,7 +102,7 @@ public class ReservationController {
 
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable Long id, @RequestBody ReservationUpdateRequest request) {
+    public ResponseEntity<ReservationResponse> updateReservation(@PathVariable String id, @RequestBody ReservationUpdateRequest request) {
         return reservationService.updateReservation(id, request);
     }
 

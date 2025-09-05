@@ -16,11 +16,18 @@ public class CustomCorsConfiguration implements CorsConfigurationSource {
 
     @Override
     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+        String origin = request.getHeader("Origin");
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedOrigin(client);
-        corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
+
+        if (origin != null) {
+
+            System.out.println("origin: " + origin);
+
+            corsConfiguration.setAllowCredentials(true);
+            corsConfiguration.addAllowedOrigin(origin);
+            corsConfiguration.setAllowedHeaders(List.of("*"));
+            corsConfiguration.setAllowedMethods(List.of("POST", "GET", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        }
 
         return corsConfiguration;
     }

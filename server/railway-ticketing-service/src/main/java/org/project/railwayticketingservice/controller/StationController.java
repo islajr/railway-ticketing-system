@@ -87,7 +87,7 @@ public class StationController {
             @ApiResponse(responseCode = "400", description = "Bad request")
 
     })
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<StationResponse>> getAllStations() {
         return stationService.getAllStations();
     }

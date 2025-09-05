@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTS - Home</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Railway Ticketing System</h1>
+        <nav>
+            <ul>
+                <li class="nav-item"><a href="passenger-home.html">Home</a></li>
+                <li class="nav-item"><a href="./book-ticket.html">Book Ticket</a></li>
+                <li class="nav-item"><a href="./passenger-action.html">View Tickets</a></li>
+                <li class="nav-item"><a href="./passenger-action.html">Cancel Tickets</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="main-container home-container">
+            <aside>
+                <div class="aside-container">  
+                    <div class="user-info">
+                        <!-- placeholder -->
+                        <p class="welcome-greeting"></p>
+                    </div>
+                    <div id="aside-reservations">
+                        <h1>Available Reservations</h1>
+                        <ul id="aside-reservations-list">
+
+                        </ul>       
+                    </div>
+                    <button type="button" class="logout-feature">Logout</button>
+                </div>
+            </aside>
+            <section>
+                <div class="hero-section-container">
+                    <h1>Welcome to the Railway Ticketing System</h1>
+                    <p class="hero-description">This is a system allows you to book, cancel, and manage your railway reservation tickets efficiently.</p>
+                    <h2>Features:</h2>
+                    <div class="features-container">
+                        <div class="book-a-ticket features-card">
+                            <p>Do you want to go board a train, but don't want to go through the hassle of queueing?</p>
+                            <button><a href="book-ticket.html" class="home-feature" id="home-book-a-ticket">Book a Ticket</a></button>
+                        </div>
+                        <div class="view-your-tickets features-card">
+                            <p>Wanna see how many tickets you have currently?</p>
+                            <button><a href="passenger-action.html" class="home-feature" id="home-view-tickets">View Your Tickets</a></button>
+                        </div>
+                        <div class="cancel-a-ticket features-card">
+                            <p>Changed your mind or your schedule?</p>
+                            <button><a href="passenger-action.html" class="home-feature" id="home-cancel-ticket">Cancel a Ticket</a></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <aside>
+                <div class="aside-container">
+                    <h2>Train Schedules</h2>
+                    <div class="train-schedules-container">
+                        <ul id="aside-schedules-list">
+                            
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+    
+    <script src="../js/passenger.js"></script>
+</body>
+</html>

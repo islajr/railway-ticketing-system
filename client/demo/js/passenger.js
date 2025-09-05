@@ -38,7 +38,17 @@ async function loadHomePage() {
         // reservations display
         if (data.reservations.length != 0) {
             data.reservations.forEach(reservation => {
-                reservationsList.innerHTML = reservationsList.innerHTML + `<li>${reservation.reservationId}</li>`
+                reservationsList.innerHTML = reservationsList.innerHTML + 
+                `
+                <details>
+                    <summary>${reservation.train} | ${convertToRealTime(reservation.time)}</summary>
+                    <p class="aside-reservation-list-details"><strong>Id: </strong>${reservation.reservationId}</p>
+                    <p class="aside-reservation-list-details"><strong>From: </strong> ${reservation.origin}</p>
+                    <p class="aside-reservation-list-details"><strong>Train: </strong> ${reservation.train}</p>
+                    <p class="aside-reservation-list-details"><strong>Departure: </strong> ${new Date(reservation.time.localDateTime).toLocaleTimeString()}</p>
+                    <p class="aside-reservation-list-details"><strong>Seat: </strong> ${reservation.seatNumber}</p>
+                </details>
+                `
             });
         }
 
@@ -216,6 +226,14 @@ async function querySchedules(origin, destination) {
     }
 }
 
+function convertToRealTime(timePojo) {
+    return `${timePojo.day} ${capitalize(timePojo.month)}, ${timePojo.year} | ${timePojo.hour}:${timePojo.minute == "0" ? "00" : timePojo.minute}`
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 
 /* main logic */
 
@@ -265,16 +283,21 @@ scheduleSearchOrigin.addEventListener('input', (e) => {
     setTimeout(() => {
         console.log("querying db for schedules with origin: " + e.target.value);
         schedules = querySchedules(e.target.value, null);
+        console.log("schedules: ", schedules);
     }, 2000);
 
     // assuming everything goes right...
     // TODO: populate the results section
+
+    /*
+     * please
+     */    
 })
 
 scheduleSearchDestination.addEventListener('input', (e) => {
     setTimeout(() => {
         console.log("querying db for schedules with destination: " + e.target.value);
-        schedules = querySchedules(e.target.value, null);
+        schedules = querySchedules(null, e.target.value);
     }, 2000);
 
     // assuming everything goes right...

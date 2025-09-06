@@ -61,6 +61,7 @@ public class ScheduleService {
                         .destination(destination)
                         .departureTime(request.departure().getLocalDateTime())
                         .arrivalTime(request.arrival().getLocalDateTime())
+                        .isCompleted(false)
                         .build();
 
                 scheduleRepository.save(schedule);
@@ -97,6 +98,7 @@ public class ScheduleService {
                             .availableSeats(schedule.getEmptySeats().stream()
                                     .map(ScheduleSeat::getLabel)
                                     .collect(Collectors.toList()))
+                            .isCompleted(false)
                             .build()
             );
         } throw new RtsException(404, "Schedule not found!");
@@ -172,6 +174,7 @@ public class ScheduleService {
                                         .destination(schedule.getDestination().toString())
                                         .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
                                         .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
+                                        .isCompleted(schedule.isCompleted())
                                         .build()
                         )
                         .toList()

@@ -16,6 +16,7 @@ public record TrainScheduleResponse(
     String origin,
     String destination,
     Time departureTime,
-    Time arrivalTime
+    Time arrivalTime,
+    boolean isCompleted
 ) {
 }

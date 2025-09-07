@@ -8,7 +8,10 @@ import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
 import org.project.railwayticketingservice.exception.RtsException;
-import org.project.railwayticketingservice.repository.*;
+import org.project.railwayticketingservice.repository.ReservationRepository;
+import org.project.railwayticketingservice.repository.ScheduleRepository;
+import org.project.railwayticketingservice.repository.StationRepository;
+import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,20 +89,7 @@ public class ScheduleService {
             throw new RtsException(404, "Schedule not found!");
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    TrainScheduleResponse.builder()
-                            .scheduleId(schedule.getId())
-                            .train(schedule.getTrain().getName())
-                            .currentCapacity(schedule.getCurrentCapacity())
-                            .isFull(schedule.isFull())
-                            .origin(schedule.getOrigin().toString())
-                            .destination(schedule.getDestination().toString())
-                            .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                            .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                            .availableSeats(schedule.getEmptySeats().stream()
-                                    .map(ScheduleSeat::getLabel)
-                                    .collect(Collectors.toList()))
-                            .isCompleted(false)
-                            .build()
+                    TrainScheduleResponse.fromSchedule(schedule)
             );
         }
     }
@@ -148,20 +137,7 @@ public class ScheduleService {
 
             if (changed) {
                 return ResponseEntity.status(HttpStatus.OK).body(
-                        TrainScheduleResponse.builder()
-                                .scheduleId(schedule.getId())
-                                .train(schedule.getTrain().getName())
-                                .availableSeats(schedule.getEmptySeats().stream()
-                                        .map(ScheduleSeat::getLabel)
-                                        .collect(Collectors.toList()))
-                                .currentCapacity(schedule.getCurrentCapacity())
-                                .isFull(schedule.isFull())
-                                .origin(schedule.getOrigin().toString())
-                                .destination(schedule.getDestination().toString())
-                                .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                .isCompleted(schedule.isCompleted())
-                                .build()
+                        TrainScheduleResponse.fromSchedule(schedule)
                 );
             } else {
                 throw new RtsException(304, "Nothing to update!");
@@ -198,20 +174,7 @@ public class ScheduleService {
         return ResponseEntity.status(HttpStatus.OK).body(
                 schedules.stream()
                         .map(
-                                schedule -> TrainScheduleResponse.builder()
-                                        .scheduleId(schedule.getId())
-                                        .train(schedule.getTrain().getName())
-                                        .availableSeats(schedule.getEmptySeats().stream()
-                                                .map(ScheduleSeat::getLabel)
-                                                .collect(Collectors.toList()))
-                                        .currentCapacity(schedule.getCurrentCapacity())
-                                        .isFull(schedule.isFull())
-                                        .origin(schedule.getOrigin().toString())
-                                        .destination(schedule.getDestination().toString())
-                                        .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                        .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                        .isCompleted(schedule.isCompleted())
-                                        .build()
+                                TrainScheduleResponse::fromSchedule
                         )
                         .toList()
         );

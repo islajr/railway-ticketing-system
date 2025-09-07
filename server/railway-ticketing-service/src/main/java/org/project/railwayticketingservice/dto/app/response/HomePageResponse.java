@@ -10,4 +10,11 @@ public record HomePageResponse(
         List<ReservationResponse> reservations,
         List<TrainScheduleResponse> upcomingSchedules
 ) {
+    public static HomePageResponse of(UserDetailsResponse userDetails, List<ReservationResponse> reservations, List<TrainScheduleResponse> upcomingSchedules) {
+        return HomePageResponse.builder()
+                .userDetails(userDetails)
+                .reservations(reservations)
+                .upcomingSchedules(upcomingSchedules)
+                .build();
+    }
 }

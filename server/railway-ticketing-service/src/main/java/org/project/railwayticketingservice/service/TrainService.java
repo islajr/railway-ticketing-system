@@ -35,12 +35,7 @@ public class TrainService {
             trainRepository.save(train);
             System.out.println("train successfully created");
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build()
+                    NewTrainResponse.from(train)
             );
 
         }
@@ -52,12 +47,7 @@ public class TrainService {
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(
-                NewTrainResponse.builder()
-                        .trainId(train.getId().toString())
-                        .trainName(train.getName())
-                        .isActive(String.valueOf(train.isActive()))
-                        .capacity(train.getCapacity().toString())
-                        .build()
+                NewTrainResponse.from(train)
         );
     }
 
@@ -80,12 +70,7 @@ public class TrainService {
 
         trainRepository.save(train);
         return ResponseEntity.status(HttpStatus.OK).body(
-                NewTrainResponse.builder()
-                        .trainId(train.getId().toString())
-                        .trainName(train.getName())
-                        .isActive(String.valueOf(train.isActive()))
-                        .capacity(train.getCapacity().toString())
-                        .build());
+                NewTrainResponse.from(train));
     }
 
     public ResponseEntity<NewTrainResponse> removeTrain(String id) {    // cross-check method during testing
@@ -105,12 +90,7 @@ public class TrainService {
         List<NewTrainResponse> trainResponses = new ArrayList<>();
 
         for (Train train : trains) {
-            trainResponses.add(NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build());
+            trainResponses.add(NewTrainResponse.from(train));
         }
         return ResponseEntity.status(HttpStatus.OK).body(trainResponses);
     }

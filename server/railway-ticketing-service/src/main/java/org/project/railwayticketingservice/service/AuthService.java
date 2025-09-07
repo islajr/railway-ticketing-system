@@ -17,7 +17,6 @@ import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,7 +57,7 @@ public class AuthService {
 
             if (authentication.isAuthenticated()) {
                 String email = passenger.getEmail();
-                return ResponseEntity.ok(new LoginPassengerResponse(
+                return ResponseEntity.ok(LoginPassengerResponse.of(
                         jwtService.generateToken(email),
                         jwtService.generateRefreshToken(email)
                         ));

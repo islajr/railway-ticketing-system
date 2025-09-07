@@ -34,12 +34,7 @@ public class StationService {
                     .build();
             System.out.println("created station: " + station.getName());
             stationRepository.save(station);
-            return ResponseEntity.status(HttpStatus.CREATED).body(StationResponse.builder()
-                    .id(station.getId())
-                    .code(station.getCode())
-                    .name(station.getName())
-                    .lga(station.getLGA())
-                    .build());
+            return ResponseEntity.status(HttpStatus.CREATED).body(StationResponse.from(station));
         }
     }
 
@@ -73,25 +68,14 @@ public class StationService {
 
         stationRepository.save(station);
         return ResponseEntity.status(HttpStatus.OK).body(
-                StationResponse.builder()
-                        .id(station.getId())
-                        .name(station.getName())
-                        .code(station.getCode())
-                        .lga(station.getLGA())
-                        .build()
+                StationResponse.from(station)
         );
     }
 
     public ResponseEntity<StationResponse> getStation(Long id) {
         Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(404, "Station not found"));
 
-        return ResponseEntity.status(HttpStatus.OK).body(StationResponse.builder()
-                        .id(station.getId())
-                        .name(station.getName())
-                        .code(station.getCode())
-                        .lga(station.getLGA())
-                        .build()
-        );
+        return ResponseEntity.status(HttpStatus.OK).body(StationResponse.from(station));
 
     }
 
@@ -106,13 +90,7 @@ public class StationService {
         List<StationResponse> stationResponses = new ArrayList<>();
 
         for (Station station : stations) {
-            stationResponses.add(StationResponse.builder()
-                            .id(station.getId())
-                            .name(station.getName())
-                            .code(station.getCode())
-                            .lga(station.getLGA())
-                            .build()
-            );
+            stationResponses.add(StationResponse.from(station));
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(stationResponses);

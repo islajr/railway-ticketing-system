@@ -77,13 +77,7 @@ public class ReservationService {
         scheduleSeatRepository.save(seat);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ReservationResponse.builder()
-                        .reservationId(reservation.getId())
-                        .train(reservation.getSchedule().getTrain().getName())
-                        .seatNumber(seat.getLabel())
-                        .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                        .origin(reservation.getSchedule().getOrigin().getName())
-                        .build()
+                ReservationResponse.from(reservation)
         );
 
     }
@@ -98,13 +92,7 @@ public class ReservationService {
             throw new RtsException(404, "Reservation not found!");
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    ReservationResponse.builder()
-                            .reservationId(reservation.getId())
-                            .train(reservation.getSchedule().getTrain().getName())
-                            .seatNumber(reservation.getScheduleSeat().getLabel())
-                            .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                            .origin(reservation.getSchedule().getOrigin().getName())
-                            .build()
+                    ReservationResponse.from(reservation)
             );
 
         }
@@ -118,13 +106,7 @@ public class ReservationService {
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 reservations.stream()
-                        .map(reservation -> ReservationResponse.builder()
-                                .reservationId(reservation.getId())
-                                .train(reservation.getSchedule().getTrain().getName())
-                                .seatNumber(reservation.getScheduleSeat().getLabel())
-                                .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                .origin(reservation.getSchedule().getOrigin().getName())
-                                .build())
+                        .map(ReservationResponse::from)
                         .toList()
         );
     }
@@ -193,13 +175,7 @@ public class ReservationService {
                     reservationRepository.save(reservation);
                     System.out.println("assigned new seat: " + newSeat.getLabel() + " to reservation: " + reservation.getId() + ".");
 
-                    return ResponseEntity.ok(ReservationResponse.builder()
-                                    .reservationId(reservation.getId())
-                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .train(reservation.getSchedule().getTrain().getName())
-                                    .origin(reservation.getSchedule().getOrigin().getName())
-                                    .seatNumber(reservation.getScheduleSeat().getLabel())
-                            .build());
+                    return ResponseEntity.ok(ReservationResponse.from(reservation));
                 } throw new RtsException(409, "Seat is already taken!");
             } throw new RtsException(404, "No such seat");
         } throw new RtsException(400, "nothing to update");

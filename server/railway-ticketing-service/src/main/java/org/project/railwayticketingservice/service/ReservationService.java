@@ -94,7 +94,9 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
-        if (reservation != null) {
+        if (reservation == null) {
+            throw new RtsException(404, "Reservation not found!");
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     ReservationResponse.builder()
                             .reservationId(reservation.getId())
@@ -105,7 +107,7 @@ public class ReservationService {
                             .build()
             );
 
-        } throw new RtsException(404, "Reservation not found!");
+        }
     }
 
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
@@ -114,20 +116,17 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
 
-        if (!reservations.isEmpty()) {
-
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    reservations.stream()
-                            .map(reservation -> ReservationResponse.builder()
-                                    .reservationId(reservation.getId())
-                                    .train(reservation.getSchedule().getTrain().getName())
-                                    .seatNumber(reservation.getScheduleSeat().getLabel())
-                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .origin(reservation.getSchedule().getOrigin().getName())
-                                    .build())
-                            .toList()
-            );
-        } throw new RtsException(404, "Reservations not found!") ;
+        return ResponseEntity.status(HttpStatus.OK).body(
+                reservations.stream()
+                        .map(reservation -> ReservationResponse.builder()
+                                .reservationId(reservation.getId())
+                                .train(reservation.getSchedule().getTrain().getName())
+                                .seatNumber(reservation.getScheduleSeat().getLabel())
+                                .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
+                                .origin(reservation.getSchedule().getOrigin().getName())
+                                .build())
+                        .toList()
+        );
     }
 
     public ResponseEntity<AppResponse> deleteReservation(String id) {
@@ -135,13 +134,15 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
-        if (reservation != null) {
+        if (reservation == null) {
+            throw new RtsException(404, "Reservation not found!");
+        } else {
             utilities.freeUpSeat(reservation);
             reservationRepository.delete(reservation);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservation successfully deleted")
                     .build());
-        } throw new RtsException(404, "Reservation not found!");
+        }
     }
 
     public ResponseEntity<AppResponse> deleteAllReservations() {
@@ -150,7 +151,9 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
         // make seats available again
 
-        if (!reservations.isEmpty()) {
+        if (reservations.isEmpty()) {
+            throw new RtsException(404, "Reservations not found!");
+        } else {
             for (Reservation reservation : reservations) {
                 utilities.freeUpSeat(reservation);
             }
@@ -158,7 +161,7 @@ public class ReservationService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservations successfully deleted!")
                     .build());
-        } throw new RtsException(404, "Reservations not found!");
+        }
     }
 
     public ResponseEntity<ReservationResponse> updateReservation(String id, ReservationUpdateRequest request) {

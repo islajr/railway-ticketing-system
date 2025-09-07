@@ -23,7 +23,9 @@ public class TrainService {
 
     // admin-specific method
     public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
-        if (!trainRepository.existsByName(newTrainRequest.name())) {
+        if (trainRepository.existsByName(newTrainRequest.name())) {
+            throw new RtsException(409, "train name already exists!");
+        } else {
             Train train = Train.builder()
                     .name(newTrainRequest.name())
                     .capacity(Long.valueOf(newTrainRequest.capacity().strip()))
@@ -41,22 +43,22 @@ public class TrainService {
                             .build()
             );
 
-        } throw new RtsException(409, "train name already exists!");
+        }
     }
 
     public ResponseEntity<NewTrainResponse> getTrain(String id) {
-        Train train = trainRepository.findTrainById(Long.getLong(id));
+        Train train = trainRepository.findTrainById(Long.getLong(id)).orElseThrow(
+                () -> new RtsException(404, "Train not found!")
+        );
 
-        if (train != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build()
-            );
-        } throw new RtsException(404, "Train not found!");
+        return ResponseEntity.status(HttpStatus.OK).body(
+                NewTrainResponse.builder()
+                        .trainId(train.getId().toString())
+                        .trainName(train.getName())
+                        .isActive(String.valueOf(train.isActive()))
+                        .capacity(train.getCapacity().toString())
+                        .build()
+        );
     }
 
     public ResponseEntity<NewTrainResponse> updateTrain(String id, TrainUpdateRequest request) {

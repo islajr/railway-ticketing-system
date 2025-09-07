@@ -23,7 +23,9 @@ public class StationService {
 
     public ResponseEntity<StationResponse> createStation(NewStationRequest request) {
 
-        if (!stationRepository.existsByName(request.name())) {  // continue only if station with said name does not exist
+        if (stationRepository.existsByName(request.name())) {
+            throw new RtsException(409, "Station with name " + request.name() + " already exists");
+        } else {  // continue only if station with said name does not exist
             Station station = Station.builder()
                     .name(request.name())
                     .code(request.code())
@@ -33,12 +35,12 @@ public class StationService {
             System.out.println("created station: " + station.getName());
             stationRepository.save(station);
             return ResponseEntity.status(HttpStatus.CREATED).body(StationResponse.builder()
-                            .id(station.getId())
-                            .code(station.getCode())
-                            .name(station.getName())
-                            .lga(station.getLGA())
+                    .id(station.getId())
+                    .code(station.getCode())
+                    .name(station.getName())
+                    .lga(station.getLGA())
                     .build());
-        } throw new RtsException(409, "Station with name " + request.name() + " already exists");
+        }
     }
 
     public ResponseEntity<StationResponse> deleteStation(Long stationId) {

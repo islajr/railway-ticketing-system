@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RtsException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(RtsException ex) {
-        return ResponseEntity.status(HttpStatusCode.valueOf(ex.status)).body(new ErrorResponse(ex.status, ex.message));
+        return ResponseEntity.status(HttpStatusCode.valueOf(ex.status)).body(new ErrorResponse(ex.status, ex.message, ex.timestamp));
     }
 
     /*@ExceptionHandler(value = RtsException.class)

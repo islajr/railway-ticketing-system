@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public class ScheduleService {
     // admin-specific method
     public ResponseEntity<AppResponse> createSchedule(ScheduleCreationRequest request) {
         Train train = trainRepository.findTrainByName(request.train()).orElseThrow(
-                () -> new RtsException(400, "Schedule creation failed! No such train"));
+                () -> new RtsException(400, "Schedule creation failed! No such train", Instant.now().toString()));
 
         if (train.getName().equals(request.train().strip())) {
 
@@ -42,7 +43,7 @@ public class ScheduleService {
                 if (request.origin().equals(schedule.getOrigin().toString())) {
                     // check for departure times
                     if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
-                        throw new RtsException(409, "there is already a schedule fixed for this period.");  // try another train or time?
+                        throw new RtsException(409, "there is already a schedule fixed for this period.", Instant.now().toString());  // try another train or time?
                     }
                 }
             }
@@ -53,7 +54,7 @@ public class ScheduleService {
         Station destination = stationRepository.findStationByName(request.destination());
 
         if (origin == null || destination == null) {
-            throw new RtsException(400, "Please input a valid station");
+            throw new RtsException(400, "Please input a valid station", Instant.now().toString());
         } else {
 
             Schedule schedule = Schedule.builder()
@@ -86,7 +87,7 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 
         if (schedule == null) {
-            throw new RtsException(404, "Schedule not found!");
+            throw new RtsException(404, "Schedule not found!", Instant.now().toString());
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     TrainScheduleResponse.fromSchedule(schedule)
@@ -100,7 +101,7 @@ public class ScheduleService {
         Station destination = stationRepository.findStationByName(request.destination());
 
         if (schedule == null) {
-            throw new RtsException(404, "Schedule not found!");
+            throw new RtsException(404, "Schedule not found!", Instant.now().toString());
         } else {
             /* TODO:
              *  find a more efficient way to only write to DB once
@@ -140,7 +141,7 @@ public class ScheduleService {
                         TrainScheduleResponse.fromSchedule(schedule)
                 );
             } else {
-                throw new RtsException(304, "Nothing to update!");
+                throw new RtsException(304, "Nothing to update!", Instant.now().toString());
             }
 
         }
@@ -160,7 +161,7 @@ public class ScheduleService {
                 if (!filter1.equals("null")) {
                     schedules = utilities.getSchedules(filter1, request);
                 } else {
-                    throw new RtsException(400, "Filters cannot be null!");
+                    throw new RtsException(400, "Filters cannot be null!", Instant.now().toString());
                 }
 
             } else {
@@ -184,7 +185,7 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 
         if (schedule == null) {
-            throw new RtsException(404, "Schedule not found!");
+            throw new RtsException(404, "Schedule not found!", Instant.now().toString());
         } else {
 
             // delete all reservations

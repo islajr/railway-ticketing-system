@@ -46,7 +46,7 @@ public class Utilities {
                 return scheduleRepository.findSchedulesByDepartureTime(request.time().getLocalDateTime());
             }
             default -> {
-                throw new RtsException(400, "Invalid filter!");
+                throw new RtsException(400, "Invalid filter!", Instant.now().toString());
             }
         }
     }
@@ -66,7 +66,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new RtsException(400, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!", Instant.now().toString());
                     }
                 }
 
@@ -80,7 +80,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new RtsException(400, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!", Instant.now().toString());
                     }
                 }
             }
@@ -93,12 +93,12 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByDestinationAndDepartureTime(origin, request.time().getLocalDateTime());
                     }
                     default -> {
-                        throw new RtsException(400, "Invalid second filter!");
+                        throw new RtsException(400, "Invalid second filter!", Instant.now().toString());
                     }
                 }
             }
             default -> {
-                throw new RtsException(400, "Invalid filter!");
+                throw new RtsException(400, "Invalid filter!", Instant.now().toString());
             }
         }
     }

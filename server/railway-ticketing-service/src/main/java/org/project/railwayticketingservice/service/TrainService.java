@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class TrainService {
     // admin-specific method
     public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
         if (trainRepository.existsByName(newTrainRequest.name())) {
-            throw new RtsException(409, "train name already exists!");
+            throw new RtsException(409, "train name already exists!", Instant.now().toString());
         } else {
             Train train = Train.builder()
                     .name(newTrainRequest.name())
@@ -43,7 +44,7 @@ public class TrainService {
 
     public ResponseEntity<NewTrainResponse> getTrain(String id) {
         Train train = trainRepository.findTrainById(Long.getLong(id)).orElseThrow(
-                () -> new RtsException(404, "Train not found!")
+                () -> new RtsException(404, "Train not found!", Instant.now().toString())
         );
 
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -58,7 +59,7 @@ public class TrainService {
         * - is active
         * */
 
-        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!"));
+        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!", Instant.now().toString()));
 
         if (!Objects.equals(request.name(), "null") && !train.getName().equals(request.name())) {
             train.setName(request.name());
@@ -74,7 +75,7 @@ public class TrainService {
     }
 
     public ResponseEntity<NewTrainResponse> removeTrain(String id) {    // cross-check method during testing
-        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!"));
+        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!", Instant.now().toString()));
 
         trainRepository.delete(train);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

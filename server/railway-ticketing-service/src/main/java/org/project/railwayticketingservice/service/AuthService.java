@@ -24,6 +24,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -37,7 +39,7 @@ public class AuthService {
     public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new RtsException(409, "Email already in use");
+            throw new RtsException(409, "Email already in use", Instant.now().toString());
         }
 
         Passenger passenger = request.toPassenger();
@@ -65,21 +67,21 @@ public class AuthService {
                     accessToken = jwtService.generateToken(email);
                     refreshToken = jwtService.generateRefreshToken(email);
                 } catch (InvalidKeyException ex) {
-                    throw new RtsException(400, "Invalid key");
+                    throw new RtsException(400, "Invalid key", Instant.now().toString());
                 } catch (JwtException ex) {
-                    throw new RtsException(400, "Invalid token");
+                    throw new RtsException(400, "Invalid token", Instant.now().toString());
                 }
                 return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, refreshToken));
             }
         }
 
-        throw new RtsException(400, "Invalid email or password");
+        throw new RtsException(400, "Invalid email or password", Instant.now().toString());
     }
 
     public ResponseEntity<RegisterAdminResponse> registerAdmin(RegisterAdminRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new RtsException(409, "Email already in use");
+            throw new RtsException(409, "Email already in use", Instant.now().toString());
         }
 
         Admin admin = request.toAdmin();
@@ -108,6 +110,6 @@ public class AuthService {
             }
         }
 
-        throw new RtsException(400, "Invalid email or password");
+        throw new RtsException(400, "Invalid email or password", Instant.now().toString());
     }
 }

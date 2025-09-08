@@ -10,6 +10,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 @RequiredArgsConstructor
 public class LogoutHandler implements org.springframework.security.web.authentication.logout.LogoutHandler {
@@ -26,7 +28,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
             if (tokenService.isTokenAllowed(token)) {
                 tokenService.disallowToken(token);
             } else {
-                throw new RtsException(401, "token is disallowed!");
+                throw new RtsException(401, "token is disallowed!", Instant.now().toString());
             }
             // invalidate refresh token
         } else {

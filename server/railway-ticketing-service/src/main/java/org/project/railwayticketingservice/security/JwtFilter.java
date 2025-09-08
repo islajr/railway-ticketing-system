@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -86,7 +87,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else
-                throw new RtsException(404, "no such user!");
+                throw new RtsException(404, "no such user!", Instant.now().toString());
         }
 
         filterChain.doFilter(request, response);

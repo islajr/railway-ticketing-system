@@ -1,5 +1,7 @@
 package org.project.railwayticketingservice.service;
 
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.security.InvalidKeyException;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
@@ -57,10 +59,17 @@ public class AuthService {
 
             if (authentication.isAuthenticated()) {
                 String email = passenger.getEmail();
-                return ResponseEntity.ok(LoginPassengerResponse.of(
-                        jwtService.generateToken(email),
-                        jwtService.generateRefreshToken(email)
-                        ));
+                String accessToken = "";
+                String refreshToken = "";
+                try {
+                    accessToken = jwtService.generateToken(email);
+                    refreshToken = jwtService.generateRefreshToken(email);
+                } catch (InvalidKeyException ex) {
+                    throw new RtsException(400, "Invalid key");
+                } catch (JwtException ex) {
+                    throw new RtsException(400, "Invalid token");
+                }
+                return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, refreshToken));
             }
         }
 

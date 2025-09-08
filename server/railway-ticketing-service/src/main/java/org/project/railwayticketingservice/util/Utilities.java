@@ -1,5 +1,7 @@
 package org.project.railwayticketingservice.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.entity.Reservation;
@@ -12,8 +14,12 @@ import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -131,6 +137,19 @@ public class Utilities {
 
         scheduleRepository.save(schedule);
         scheduleSeatRepository.save(seat);
+    }
+
+    public void handleException(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+
+        Map<String, String> errorDetails = new HashMap<>();
+        errorDetails.put("status", String.valueOf(status));
+        errorDetails.put("message", message);
+        errorDetails.put("timestamp", String.valueOf(Instant.now()));
+
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
+        response.getWriter().flush();
     }
 
 

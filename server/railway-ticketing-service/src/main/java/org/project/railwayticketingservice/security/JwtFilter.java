@@ -1,6 +1,5 @@
 package org.project.railwayticketingservice.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -16,6 +15,7 @@ import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
 import org.project.railwayticketingservice.service.TokenService;
+import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,9 +23,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -36,6 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final AdminRepository adminRepository;
     private final PassengerRepository passengerRepository;
+    private final Utilities utilities;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -49,10 +47,10 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 email = jwtService.extractEmail(token);
             } catch (ExpiredJwtException ex) {
-                handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Expired JWT Token");
+                utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Expired JWT Token");
                 return;
             } catch (JwtException ex) {
-                handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 return;
             }
         }
@@ -60,7 +58,6 @@ public class JwtFilter extends OncePerRequestFilter {
         // check if token has been disallowed
         if (!tokenService.isTokenAllowed(token)) {
             System.out.println("blacklisting token!");
-            handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Expired or disallowed token!");
             return;
         }
 
@@ -75,7 +72,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else if (adminRepository.existsByEmail(email)) {
                 AdminPrincipal adminPrincipal = (AdminPrincipal) customUserDetailsService.loadUserByUsername(email);
@@ -86,7 +83,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else
                 throw new RtsException(404, "no such user!");
@@ -95,16 +92,5 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void handleException(HttpServletResponse response, int status, String message) throws IOException {
-        response.setStatus(status);
-        response.setContentType("application/json");
 
-        Map<String, String> errorDetails = new HashMap<>();
-        errorDetails.put("status", String.valueOf(status));
-        errorDetails.put("message", message);
-        errorDetails.put("timestamp", String.valueOf(Instant.now()));
-
-        response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
-        response.getWriter().flush();
-    }
 }

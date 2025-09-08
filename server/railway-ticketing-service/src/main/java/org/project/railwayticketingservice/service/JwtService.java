@@ -1,16 +1,11 @@
 package org.project.railwayticketingservice.service;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
-import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;

@@ -1,16 +1,17 @@
 package org.project.railwayticketingservice.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerErrorException;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -49,48 +50,35 @@ public class JwtService {
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
 
-        try {
-
-            return Jwts.builder()
-                    .subject(email)
-                    .claims(claims)
-                    .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + expiration))
-                    .signWith(generateKey())
-                    .compact();
-        } catch (JwtException e) {
-            throw new RtsException(500, "failed to generate token");
-        }
+        return Jwts.builder()
+                .subject(email)
+                .claims(claims)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(generateKey())
+                .compact();
 
     }
 
     public String generateRefreshToken(String email) {
         Map<String, Object> claims = new HashMap<>();
 
-        try {
-            return Jwts.builder()
-                    .subject(email)
-                    .claims(claims)
-                    .issuedAt(new Date(System.currentTimeMillis()))
-                    .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
-                    .signWith(generateKey())
-                    .compact();
-        } catch (JwtException e) {
-            throw new RtsException(500, "failed to generate refresh token");
-        }
+        return Jwts.builder()
+                .subject(email)
+                .claims(claims)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .signWith(generateKey())
+                .compact();
     }
 
     private Claims extractClaims(String token) {
-        try {
+        return Jwts.parser()
+                .verifyWith(generateKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
-            return Jwts.parser()
-                    .verifyWith(generateKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (JwtException e) {
-            throw new RtsException(401, "this is an invalid token");
-        }
     }
 
     public String extractEmail(String token) {

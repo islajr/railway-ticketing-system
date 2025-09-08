@@ -6,7 +6,7 @@ import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
 import org.project.railwayticketingservice.entity.Station;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.repository.StationRepository;

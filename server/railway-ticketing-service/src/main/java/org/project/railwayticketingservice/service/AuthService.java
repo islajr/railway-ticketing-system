@@ -11,7 +11,7 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterAdminRespon
 import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerResponse;
 import org.project.railwayticketingservice.entity.Admin;
 import org.project.railwayticketingservice.entity.Passenger;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.springframework.http.HttpStatus;

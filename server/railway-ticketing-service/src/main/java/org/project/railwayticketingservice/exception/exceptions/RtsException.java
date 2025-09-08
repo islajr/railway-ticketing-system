@@ -1,9 +1,9 @@
-package org.project.railwayticketingservice.exception;
+package org.project.railwayticketingservice.exception.exceptions;
 
 public class RtsException extends RuntimeException {
 
-    int status;
-    String message;
+    public int status;
+    public String message;
 
     public RtsException(int status, String message) {
         this.status = status;

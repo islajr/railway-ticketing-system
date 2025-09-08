@@ -5,7 +5,7 @@ import org.project.railwayticketingservice.dto.app.request.NewStationRequest;
 import org.project.railwayticketingservice.dto.app.request.StationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.StationResponse;
 import org.project.railwayticketingservice.entity.Station;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

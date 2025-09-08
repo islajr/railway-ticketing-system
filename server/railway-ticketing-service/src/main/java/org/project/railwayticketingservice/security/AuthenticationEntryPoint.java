@@ -15,7 +15,10 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.getWriter().write("""
-                "message": "you are not not allowed to access this resource."
-                """);
+                {
+                    "error": "Unauthorized",
+                    "message": "%s"
+                }
+                """.formatted(authException.getMessage()));
     }
 }

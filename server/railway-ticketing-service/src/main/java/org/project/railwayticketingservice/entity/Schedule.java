@@ -47,6 +47,9 @@ public class Schedule {
     @ManyToOne(fetch = FetchType.EAGER)
     private Station destination;
 
+    @Column(nullable = false, name = "is_completed")
+    private boolean isCompleted;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

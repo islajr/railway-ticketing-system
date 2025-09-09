@@ -4,8 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.service.TokenService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
             if (tokenService.isTokenAllowed(token)) {
                 tokenService.disallowToken(token);
             } else {
-                throw new RtsException(401, "token is disallowed!");
+                throw new RtsException(HttpStatus.UNAUTHORIZED, "token is disallowed!");
             }
             // invalidate refresh token
         } else {

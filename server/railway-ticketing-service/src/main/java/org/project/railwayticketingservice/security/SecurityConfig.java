@@ -30,6 +30,7 @@ public class SecurityConfig {
     private final AuthenticationEntryPoint authEntryPoint;
     private final LogoutHandler logoutHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -68,7 +69,10 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(c -> c.configurationSource(customCorsConfiguration))
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/rts/auth/logout")
                         .addLogoutHandler(logoutHandler)

@@ -6,7 +6,7 @@ import org.project.railwayticketingservice.dto.app.request.ReservationUpdateRequ
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.entity.*;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.repository.ReservationRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
@@ -43,7 +43,7 @@ public class ReservationService {
 
             // check if passenger already has a reservation for the schedule in question
             if (possibleReservation != null) {
-                throw new RtsException(409, "Reservation already exists");
+                throw new RtsException(HttpStatus.CONFLICT, "Reservation already exists");
             }
 
             // seat availability check
@@ -57,13 +57,13 @@ public class ReservationService {
                     }
                     scheduleRepository.save(schedule);
                 } else {
-                    throw new RtsException(409, "Seat is already taken!");
+                    throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
                 }
             } else {
-                throw new RtsException(404, "Seat not found!");   // seat does not exist.
+                throw new RtsException(HttpStatus.NOT_FOUND, "Seat not found!");   // seat does not exist.
             }
         } else {
-            throw new RtsException(409, "Schedule is already full!");
+            throw new RtsException(HttpStatus.CONFLICT, "Schedule is already full!");
         }
 
         Reservation reservation = Reservation.builder()
@@ -77,13 +77,7 @@ public class ReservationService {
         scheduleSeatRepository.save(seat);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ReservationResponse.builder()
-                        .reservationId(reservation.getId())
-                        .train(reservation.getSchedule().getTrain().getName())
-                        .seatNumber(seat.getLabel())
-                        .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                        .origin(reservation.getSchedule().getOrigin().getName())
-                        .build()
+                ReservationResponse.from(reservation)
         );
 
     }
@@ -94,18 +88,14 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
-        if (reservation != null) {
+        if (reservation == null) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservation not found!");
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    ReservationResponse.builder()
-                            .reservationId(reservation.getId())
-                            .train(reservation.getSchedule().getTrain().getName())
-                            .seatNumber(reservation.getScheduleSeat().getLabel())
-                            .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                            .origin(reservation.getSchedule().getOrigin().getName())
-                            .build()
+                    ReservationResponse.from(reservation)
             );
 
-        } throw new RtsException(404, "Reservation not found!");
+        }
     }
 
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
@@ -114,20 +104,11 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
 
-        if (!reservations.isEmpty()) {
-
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    reservations.stream()
-                            .map(reservation -> ReservationResponse.builder()
-                                    .reservationId(reservation.getId())
-                                    .train(reservation.getSchedule().getTrain().getName())
-                                    .seatNumber(reservation.getScheduleSeat().getLabel())
-                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .origin(reservation.getSchedule().getOrigin().getName())
-                                    .build())
-                            .toList()
-            );
-        } throw new RtsException(404, "Reservations not found!") ;
+        return ResponseEntity.status(HttpStatus.OK).body(
+                reservations.stream()
+                        .map(ReservationResponse::from)
+                        .toList()
+        );
     }
 
     public ResponseEntity<AppResponse> deleteReservation(String id) {
@@ -135,13 +116,15 @@ public class ReservationService {
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
-        if (reservation != null) {
+        if (reservation == null) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservation not found!");
+        } else {
             utilities.freeUpSeat(reservation);
             reservationRepository.delete(reservation);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservation successfully deleted")
                     .build());
-        } throw new RtsException(404, "Reservation not found!");
+        }
     }
 
     public ResponseEntity<AppResponse> deleteAllReservations() {
@@ -150,7 +133,9 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
         // make seats available again
 
-        if (!reservations.isEmpty()) {
+        if (reservations.isEmpty()) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservations not found!");
+        } else {
             for (Reservation reservation : reservations) {
                 utilities.freeUpSeat(reservation);
             }
@@ -158,14 +143,14 @@ public class ReservationService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservations successfully deleted!")
                     .build());
-        } throw new RtsException(404, "Reservations not found!");
+        }
     }
 
     public ResponseEntity<ReservationResponse> updateReservation(String id, ReservationUpdateRequest request) {
 
         /* allow passengers to change their selected seats for a start. */
         Reservation reservation = reservationRepository.findReservationById(id)
-                .orElseThrow(() -> new RtsException(404, "Reservation does not exist"));
+                .orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Reservation does not exist"));
 
         if (!Objects.equals(reservation.getScheduleSeat().getLabel(), request.preferredSeat())) {   // check for seat mismatch
 
@@ -190,15 +175,9 @@ public class ReservationService {
                     reservationRepository.save(reservation);
                     System.out.println("assigned new seat: " + newSeat.getLabel() + " to reservation: " + reservation.getId() + ".");
 
-                    return ResponseEntity.ok(ReservationResponse.builder()
-                                    .reservationId(reservation.getId())
-                                    .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                    .train(reservation.getSchedule().getTrain().getName())
-                                    .origin(reservation.getSchedule().getOrigin().getName())
-                                    .seatNumber(reservation.getScheduleSeat().getLabel())
-                            .build());
-                } throw new RtsException(409, "Seat is already taken!");
-            } throw new RtsException(404, "No such seat");
-        } throw new RtsException(400, "nothing to update");
+                    return ResponseEntity.ok(ReservationResponse.from(reservation));
+                } throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
+            } throw new RtsException(HttpStatus.NOT_FOUND, "No such seat");
+        } throw new RtsException(HttpStatus.BAD_REQUEST, "nothing to update");
     }
 }

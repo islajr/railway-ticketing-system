@@ -1,22 +1,24 @@
 package org.project.railwayticketingservice.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
 import org.project.railwayticketingservice.service.TokenService;
+import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,6 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final AdminRepository adminRepository;
     private final PassengerRepository passengerRepository;
+    private final Utilities utilities;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -42,13 +45,22 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith(AUTH_PREFIX)) {
             token = authHeader.substring(AUTH_PREFIX.length());
-            email = jwtService.extractEmail(token);
+            try {
+                email = jwtService.extractEmail(token);
+            } catch (ExpiredJwtException ex) {
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Expired JWT Token");
+                return;
+            } catch (JwtException ex) {
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                return;
+            }
         }
 
         // check if token has been disallowed
         if (!tokenService.isTokenAllowed(token)) {
             System.out.println("blacklisting token!");
-            throw new RtsException(401, "expired or disallowed token!");
+            tokenService.disallowToken(token);
+            throw new RtsException(HttpStatus.UNAUTHORIZED, "Disallowed JWT Token");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -61,6 +73,8 @@ public class JwtFilter extends OncePerRequestFilter {
                             = new UsernamePasswordAuthenticationToken(passengerPrincipal, null, passengerPrincipal.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else if (adminRepository.existsByEmail(email)) {
                 AdminPrincipal adminPrincipal = (AdminPrincipal) customUserDetailsService.loadUserByUsername(email);
@@ -70,15 +84,15 @@ public class JwtFilter extends OncePerRequestFilter {
                             = new UsernamePasswordAuthenticationToken(adminPrincipal, null, adminPrincipal.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else
-                throw new RtsException(404, "no such user!");
-
-        } else {
-            if (token != null)
-                throw new RtsException(401, "invalid token!");
+                throw new RtsException(HttpStatus.NOT_FOUND, "no such user!");
         }
 
         filterChain.doFilter(request, response);
     }
+
+
 }

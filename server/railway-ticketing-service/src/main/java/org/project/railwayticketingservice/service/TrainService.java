@@ -5,7 +5,7 @@ import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
 import org.project.railwayticketingservice.dto.app.request.TrainUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.entity.Train;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.TrainRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,9 @@ public class TrainService {
 
     // admin-specific method
     public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
-        if (!trainRepository.existsByName(newTrainRequest.name())) {
+        if (trainRepository.existsByName(newTrainRequest.name())) {
+            throw new RtsException(HttpStatus.CONFLICT, "train name already exists!");
+        } else {
             Train train = Train.builder()
                     .name(newTrainRequest.name())
                     .capacity(Long.valueOf(newTrainRequest.capacity().strip()))
@@ -33,30 +35,20 @@ public class TrainService {
             trainRepository.save(train);
             System.out.println("train successfully created");
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build()
+                    NewTrainResponse.from(train)
             );
 
-        } throw new RtsException(409, "train name already exists!");
+        }
     }
 
     public ResponseEntity<NewTrainResponse> getTrain(String id) {
-        Train train = trainRepository.findTrainById(Long.getLong(id));
+        Train train = trainRepository.findTrainById(Long.getLong(id)).orElseThrow(
+                () -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!")
+        );
 
-        if (train != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build()
-            );
-        } throw new RtsException(404, "Train not found!");
+        return ResponseEntity.status(HttpStatus.OK).body(
+                NewTrainResponse.from(train)
+        );
     }
 
     public ResponseEntity<NewTrainResponse> updateTrain(String id, TrainUpdateRequest request) {
@@ -66,7 +58,7 @@ public class TrainService {
         * - is active
         * */
 
-        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!"));
+        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!"));
 
         if (!Objects.equals(request.name(), "null") && !train.getName().equals(request.name())) {
             train.setName(request.name());
@@ -78,16 +70,11 @@ public class TrainService {
 
         trainRepository.save(train);
         return ResponseEntity.status(HttpStatus.OK).body(
-                NewTrainResponse.builder()
-                        .trainId(train.getId().toString())
-                        .trainName(train.getName())
-                        .isActive(String.valueOf(train.isActive()))
-                        .capacity(train.getCapacity().toString())
-                        .build());
+                NewTrainResponse.from(train));
     }
 
     public ResponseEntity<NewTrainResponse> removeTrain(String id) {    // cross-check method during testing
-        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(404, "Train not found!"));
+        Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!"));
 
         trainRepository.delete(train);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -103,12 +90,7 @@ public class TrainService {
         List<NewTrainResponse> trainResponses = new ArrayList<>();
 
         for (Train train : trains) {
-            trainResponses.add(NewTrainResponse.builder()
-                            .trainId(train.getId().toString())
-                            .trainName(train.getName())
-                            .isActive(String.valueOf(train.isActive()))
-                            .capacity(train.getCapacity().toString())
-                            .build());
+            trainResponses.add(NewTrainResponse.from(train));
         }
         return ResponseEntity.status(HttpStatus.OK).body(trainResponses);
     }

@@ -1,5 +1,7 @@
 package org.project.railwayticketingservice.service;
 
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.security.InvalidKeyException;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
@@ -11,13 +13,12 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterAdminRespon
 import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerResponse;
 import org.project.railwayticketingservice.entity.Admin;
 import org.project.railwayticketingservice.entity.Passenger;
-import org.project.railwayticketingservice.exception.RtsException;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,7 +37,8 @@ public class AuthService {
     public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new RtsException(409, "Email already in use");
+            throw new RtsException(HttpStatus.CONFLICT, "Email already in use");
+
         }
 
         Passenger passenger = request.toPassenger();
@@ -58,20 +60,27 @@ public class AuthService {
 
             if (authentication.isAuthenticated()) {
                 String email = passenger.getEmail();
-                return ResponseEntity.ok(new LoginPassengerResponse(
-                        jwtService.generateToken(email),
-                        jwtService.generateRefreshToken(email)
-                        ));
+                String accessToken;
+                String refreshToken;
+                try {
+                    accessToken = jwtService.generateToken(email);
+                    refreshToken = jwtService.generateRefreshToken(email);
+                } catch (InvalidKeyException ex) {
+                    throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid key");
+                } catch (JwtException ex) {
+                    throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid token");
+                }
+                return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, refreshToken));
             }
         }
 
-        throw new RtsException(400, "Invalid email or password");
+        throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid email or password");
     }
 
     public ResponseEntity<RegisterAdminResponse> registerAdmin(RegisterAdminRequest request) {
 
         if (adminRepository.existsByEmail(request.email()) || passengerRepository.existsByEmail(request.email())) {
-            throw new RtsException(409, "Email already in use");
+            throw new RtsException(HttpStatus.CONFLICT, "Email already in use");
         }
 
         Admin admin = request.toAdmin();
@@ -100,6 +109,6 @@ public class AuthService {
             }
         }
 
-        throw new RtsException(400, "Invalid email or password");
+        throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid email or password");
     }
 }

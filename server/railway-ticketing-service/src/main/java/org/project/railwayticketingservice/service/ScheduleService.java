@@ -7,8 +7,11 @@ import org.project.railwayticketingservice.dto.app.request.ScheduleUpdateRequest
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
-import org.project.railwayticketingservice.exception.RtsException;
-import org.project.railwayticketingservice.repository.*;
+import org.project.railwayticketingservice.exception.exceptions.RtsException;
+import org.project.railwayticketingservice.repository.ReservationRepository;
+import org.project.railwayticketingservice.repository.ScheduleRepository;
+import org.project.railwayticketingservice.repository.StationRepository;
+import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,76 +32,66 @@ public class ScheduleService {
 
     // admin-specific method
     public ResponseEntity<AppResponse> createSchedule(ScheduleCreationRequest request) {
-        Train train = trainRepository.findTrainByName(request.train());
+        Train train = trainRepository.findTrainByName(request.train()).orElseThrow(
+                () -> new RtsException(HttpStatus.BAD_REQUEST, "Schedule creation failed! No such train"));
 
-        if (train != null) {
-            // check if the schedule actually exists: name -> origin -> departure time
-            if (train.getName().equals(request.train().strip())) {
+        if (train.getName().equals(request.train().strip())) {
 
-                for (Schedule schedule : train.getSchedules()) {
-                    // check for station of origin
-                    if (request.origin().equals(schedule.getOrigin().toString())) {
-                        // check for departure times
-                        if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
-                            throw new RtsException(409, "there is already a schedule fixed for this period.");  // try another train or time?
-                        }
+            for (Schedule schedule : train.getSchedules()) {
+                // check for station of origin
+                if (request.origin().equals(schedule.getOrigin().toString())) {
+                    // check for departure times
+                    if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
+                        throw new RtsException(HttpStatus.CONFLICT, "there is already a schedule fixed for this period.");  // try another train or time?
                     }
                 }
             }
-
-            // convert to station
-            Station origin = stationRepository.findStationByName(request.origin());
-            Station destination = stationRepository.findStationByName(request.destination());
-
-            if (origin != null && destination != null) {
-
-                Schedule schedule = Schedule.builder()
-                        .train(train)
-                        .currentCapacity(train.getCapacity())
-                        .isFull(false)
-                        .origin(origin)
-                        .destination(destination)
-                        .departureTime(request.departure().getLocalDateTime())
-                        .arrivalTime(request.arrival().getLocalDateTime())
-                        .build();
-
-                scheduleRepository.save(schedule);
-                System.out.println("schedule successfully created");
-
-                // generating seats for schedule
-                utilities.generateSeatsForSchedule(schedule);
-                System.out.println("seats generated");
-
-                return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
-                        .message("schedule successfully created.")
-                        .build());
-            } throw new RtsException(400, "Please input a valid station");
-
-        } else {
-            throw new RtsException(400, "Schedule creation failed! No such train!");
         }
+
+        // convert to station
+        Station origin = stationRepository.findStationByName(request.origin());
+        Station destination = stationRepository.findStationByName(request.destination());
+
+        if (origin == null || destination == null) {
+            throw new RtsException(HttpStatus.BAD_REQUEST, "Please input a valid station");
+        } else {
+
+            Schedule schedule = Schedule.builder()
+                    .train(train)
+                    .currentCapacity(train.getCapacity())
+                    .isFull(false)
+                    .origin(origin)
+                    .destination(destination)
+                    .departureTime(request.departure().getLocalDateTime())
+                    .arrivalTime(request.arrival().getLocalDateTime())
+                    .isCompleted(false)
+                    .build();
+
+            scheduleRepository.save(schedule);
+            System.out.println("schedule successfully created");
+
+            // generating seats for schedule
+            utilities.generateSeatsForSchedule(schedule);
+            System.out.println("seats generated");
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
+                    .message("schedule successfully created.")
+                    .build());
+        }
+
+
     }
 
     public ResponseEntity<TrainScheduleResponse> getTrainSchedule(String id) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 
-        if (schedule != null) {
+        if (schedule == null) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Schedule not found!");
+        } else {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    TrainScheduleResponse.builder()
-                            .scheduleId(schedule.getId())
-                            .train(schedule.getTrain().getName())
-                            .currentCapacity(schedule.getCurrentCapacity())
-                            .isFull(schedule.isFull())
-                            .origin(schedule.getOrigin().toString())
-                            .destination(schedule.getDestination().toString())
-                            .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                            .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                            .availableSeats(schedule.getEmptySeats().stream()
-                                    .map(ScheduleSeat::getLabel)
-                                    .collect(Collectors.toList()))
-                            .build()
+                    TrainScheduleResponse.fromSchedule(schedule)
             );
-        } throw new RtsException(404, "Schedule not found!");
+        }
     }
 
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
@@ -107,29 +99,51 @@ public class ScheduleService {
         Station origin = stationRepository.findStationByName(request.origin());
         Station destination = stationRepository.findStationByName(request.destination());
 
-        if (schedule != null) {
+        if (schedule == null) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Schedule not found!");
+        } else {
+            /* TODO:
+             *  find a more efficient way to only write to DB once
+             *  handle method more efficiently generally
+            */
+
+            boolean changed = false;
 
             // origin
             if (!Objects.equals(request.origin(), "null") && !Objects.equals(schedule.getOrigin(), origin)) {
                 schedule.setOrigin(origin);
+                scheduleRepository.save(schedule);
+                changed = true;
                 System.out.println("updated origin for train " + id);
                 // destination
             } if (!Objects.equals(request.destination(), "null") && !Objects.equals(schedule.getDestination(), destination)) {
                 schedule.setDestination(destination);
+                scheduleRepository.save(schedule);
+                changed = true;
                 System.out.println("updated destination for train " + id);
             }   // departure
             if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {
                 schedule.setDepartureTime(request.departureTime().getLocalDateTime());
+                scheduleRepository.save(schedule);
+                changed = true;
                 System.out.println("updated departure time for train " + id);
             }   // arrival
             if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), Time.fromLocalDateTime(schedule.getArrivalTime()))) {
                 schedule.setArrivalTime(request.arrivalTime().getLocalDateTime());
+                scheduleRepository.save(schedule);
+                changed = true;
                 System.out.println("updated arrival time for train " + id);
             }
 
-            scheduleRepository.save(schedule);
+            if (changed) {
+                return ResponseEntity.status(HttpStatus.OK).body(
+                        TrainScheduleResponse.fromSchedule(schedule)
+                );
+            } else {
+                throw new RtsException(HttpStatus.NOT_MODIFIED, "Nothing to update!");
+            }
 
-        } throw new RtsException(404, "Schedule not found!");
+        }
 
     }
 
@@ -146,7 +160,7 @@ public class ScheduleService {
                 if (!filter1.equals("null")) {
                     schedules = utilities.getSchedules(filter1, request);
                 } else {
-                    throw new RtsException(400, "Filters cannot be null!");
+                    throw new RtsException(HttpStatus.BAD_REQUEST, "Filters cannot be null!");
                 }
 
             } else {
@@ -160,19 +174,7 @@ public class ScheduleService {
         return ResponseEntity.status(HttpStatus.OK).body(
                 schedules.stream()
                         .map(
-                                schedule -> TrainScheduleResponse.builder()
-                                        .scheduleId(schedule.getId())
-                                        .train(schedule.getTrain().getName())
-                                        .availableSeats(schedule.getEmptySeats().stream()
-                                                .map(ScheduleSeat::getLabel)
-                                                .collect(Collectors.toList()))
-                                        .currentCapacity(schedule.getCurrentCapacity())
-                                        .isFull(schedule.isFull())
-                                        .origin(schedule.getOrigin().toString())
-                                        .destination(schedule.getDestination().toString())
-                                        .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                        .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                        .build()
+                                TrainScheduleResponse::fromSchedule
                         )
                         .toList()
         );
@@ -181,7 +183,9 @@ public class ScheduleService {
     public ResponseEntity<AppResponse> deleteTrainSchedule(String id) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 
-        if (schedule != null) {
+        if (schedule == null) {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Schedule not found!");
+        } else {
 
             // delete all reservations
             for (ScheduleSeat seat : schedule.getSeats()) {
@@ -196,7 +200,7 @@ public class ScheduleService {
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        } throw new RtsException(404, "Schedule not found!");
+        }
 
     }
 }

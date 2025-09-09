@@ -7,6 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 public class AuthenticationEntryPoint implements org.springframework.security.web.AuthenticationEntryPoint {
@@ -15,7 +16,13 @@ public class AuthenticationEntryPoint implements org.springframework.security.we
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.getWriter().write("""
-                "message": "you are not not allowed to access this resource."
-                """);
+                {
+                    "timestamp": "%s",
+                    "status": "401",
+                    "error": "Unauthorized",
+                    "message": "%s"
+                    "path": "%s"
+                }
+                """.formatted(LocalDateTime.now().toString(), authException.getMessage(), request.getRequestURI()));
     }
 }

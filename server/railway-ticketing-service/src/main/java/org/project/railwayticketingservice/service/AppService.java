@@ -5,7 +5,10 @@ import org.project.railwayticketingservice.dto.app.response.HomePageResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.dto.app.response.UserDetailsResponse;
-import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.entity.Passenger;
+import org.project.railwayticketingservice.entity.PassengerPrincipal;
+import org.project.railwayticketingservice.entity.Reservation;
+import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,38 +32,17 @@ public class AppService {
         List<Reservation> reservations = passenger.getReservations();
         List<Schedule> upcomingSchedules = scheduleRepository.findSchedulesByDepartureTimeBetween(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
 
-        return ResponseEntity.ok(HomePageResponse.builder()
-                        .userDetails(UserDetailsResponse.builder()
-                                .firstName(passenger.getFirstName())
-                                .lastName(passenger.getLastName())
-                                .build())
-                        .reservations(reservations.stream()
-                                .map(reservation -> ReservationResponse.builder()
-                                        .reservationId(reservation.getId())
-                                        .train(reservation.getSchedule().getTrain().getName())
-                                        .seatNumber(reservation.getScheduleSeat().getLabel())
-                                        .time(Time.fromLocalDateTime(reservation.getSchedule().getDepartureTime()))
-                                        .origin(reservation.getSchedule().getOrigin().getName())
-                                        .build())
-                                .toList())
-                        .upcomingSchedules(upcomingSchedules.stream()
-                                .map(
-                                        schedule -> TrainScheduleResponse.builder()
-                                                .scheduleId(schedule.getId())
-                                                .train(schedule.getTrain().getName())
-                                                .availableSeats(schedule.getEmptySeats().stream()
-                                                        .map(ScheduleSeat::getLabel)
-                                                        .collect(Collectors.toList()))
-                                                .currentCapacity(schedule.getCurrentCapacity())
-                                                .isFull(schedule.isFull())
-                                                .origin(schedule.getOrigin().toString())
-                                                .destination(schedule.getDestination().toString())
-                                                .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                                .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                                .build()
-                                )
-                                .toList())
-                .build());
+        /* response prepping */
+        UserDetailsResponse userDetailsResponse = UserDetailsResponse.from(passenger);
+        List<ReservationResponse> reservationResponses = reservations.stream()
+                .map(ReservationResponse::from)
+                .toList();
+        List<TrainScheduleResponse> upcomingSchedulesResponse = upcomingSchedules.stream()
+                .map(
+                        TrainScheduleResponse::fromSchedule
+                )
+                .toList();
+        return ResponseEntity.ok(HomePageResponse.of(userDetailsResponse, reservationResponses, upcomingSchedulesResponse));
 
     }
 
@@ -69,24 +50,8 @@ public class AppService {
     public ResponseEntity<List<TrainScheduleResponse>> getUpcomingTrainSchedules() {
         List<Schedule> upcomingSchedules = scheduleRepository.findSchedulesByDepartureTimeBetween(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
 
-        return ResponseEntity.ok(
-                upcomingSchedules.stream()
-                        .map(
-                                schedule -> TrainScheduleResponse.builder()
-                                        .scheduleId(schedule.getId())
-                                        .train(schedule.getTrain().getName())
-                                        .availableSeats(schedule.getEmptySeats().stream()
-                                                .map(ScheduleSeat::getLabel)
-                                                .collect(Collectors.toList()))
-                                        .currentCapacity(schedule.getCurrentCapacity())
-                                        .isFull(schedule.isFull())
-                                        .origin(schedule.getOrigin().toString())
-                                        .destination(schedule.getDestination().toString())
-                                        .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                                        .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                                        .build()
-                        )
-                        .toList()
-        );
+        return ResponseEntity.ok(upcomingSchedules.stream()
+                .map(TrainScheduleResponse::fromSchedule)
+                .toList());
     }
 }

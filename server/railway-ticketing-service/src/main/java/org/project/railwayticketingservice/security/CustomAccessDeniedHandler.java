@@ -8,6 +8,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
@@ -17,9 +18,12 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json");
         response.getWriter().write("""
                 {
+                    "timestamp": "%s",
+                    "status": "403",
                     "error": "Forbidden",
-                    "message": "%s"
+                    "message": "%s",
+                    "path": "%s"
                 }
-                """.formatted(accessDeniedException.getMessage()));
+                """.formatted(LocalDateTime.now().toString(), accessDeniedException.getMessage(), request.getRequestURI()));
     }
 }

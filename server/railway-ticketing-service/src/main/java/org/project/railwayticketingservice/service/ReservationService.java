@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,7 +43,7 @@ public class ReservationService {
 
             // check if passenger already has a reservation for the schedule in question
             if (possibleReservation != null) {
-                throw new RtsException(409, "Reservation already exists", Instant.now().toString());
+                throw new RtsException(HttpStatus.CONFLICT, "Reservation already exists");
             }
 
             // seat availability check
@@ -58,13 +57,13 @@ public class ReservationService {
                     }
                     scheduleRepository.save(schedule);
                 } else {
-                    throw new RtsException(409, "Seat is already taken!", Instant.now().toString());
+                    throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
                 }
             } else {
-                throw new RtsException(404, "Seat not found!", Instant.now().toString());   // seat does not exist.
+                throw new RtsException(HttpStatus.NOT_FOUND, "Seat not found!");   // seat does not exist.
             }
         } else {
-            throw new RtsException(409, "Schedule is already full!", Instant.now().toString());
+            throw new RtsException(HttpStatus.CONFLICT, "Schedule is already full!");
         }
 
         Reservation reservation = Reservation.builder()
@@ -90,7 +89,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
         if (reservation == null) {
-            throw new RtsException(404, "Reservation not found!", Instant.now().toString());
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservation not found!");
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(
                     ReservationResponse.from(reservation)
@@ -118,7 +117,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByIdAndPassenger(id, passenger);
 
         if (reservation == null) {
-            throw new RtsException(404, "Reservation not found!", Instant.now().toString());
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservation not found!");
         } else {
             utilities.freeUpSeat(reservation);
             reservationRepository.delete(reservation);
@@ -135,7 +134,7 @@ public class ReservationService {
         // make seats available again
 
         if (reservations.isEmpty()) {
-            throw new RtsException(404, "Reservations not found!", Instant.now().toString());
+            throw new RtsException(HttpStatus.NOT_FOUND, "Reservations not found!");
         } else {
             for (Reservation reservation : reservations) {
                 utilities.freeUpSeat(reservation);
@@ -151,7 +150,7 @@ public class ReservationService {
 
         /* allow passengers to change their selected seats for a start. */
         Reservation reservation = reservationRepository.findReservationById(id)
-                .orElseThrow(() -> new RtsException(404, "Reservation does not exist", Instant.now().toString()));
+                .orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Reservation does not exist"));
 
         if (!Objects.equals(reservation.getScheduleSeat().getLabel(), request.preferredSeat())) {   // check for seat mismatch
 
@@ -177,8 +176,8 @@ public class ReservationService {
                     System.out.println("assigned new seat: " + newSeat.getLabel() + " to reservation: " + reservation.getId() + ".");
 
                     return ResponseEntity.ok(ReservationResponse.from(reservation));
-                } throw new RtsException(409, "Seat is already taken!", Instant.now().toString());
-            } throw new RtsException(404, "No such seat", Instant.now().toString());
-        } throw new RtsException(400, "nothing to update", Instant.now().toString());
+                } throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
+            } throw new RtsException(HttpStatus.NOT_FOUND, "No such seat");
+        } throw new RtsException(HttpStatus.BAD_REQUEST, "nothing to update");
     }
 }

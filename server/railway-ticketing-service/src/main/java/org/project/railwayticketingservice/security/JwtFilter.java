@@ -16,6 +16,7 @@ import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
 import org.project.railwayticketingservice.service.TokenService;
 import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -48,10 +48,10 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 email = jwtService.extractEmail(token);
             } catch (ExpiredJwtException ex) {
-                utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Expired JWT Token");
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Expired JWT Token");
                 return;
             } catch (JwtException ex) {
-                utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 return;
             }
         }
@@ -59,7 +59,8 @@ public class JwtFilter extends OncePerRequestFilter {
         // check if token has been disallowed
         if (!tokenService.isTokenAllowed(token)) {
             System.out.println("blacklisting token!");
-            return;
+            tokenService.disallowToken(token);
+            throw new RtsException(HttpStatus.UNAUTHORIZED, "Disallowed JWT Token");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -73,7 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else if (adminRepository.existsByEmail(email)) {
                 AdminPrincipal adminPrincipal = (AdminPrincipal) customUserDetailsService.loadUserByUsername(email);
@@ -84,10 +85,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    utilities.handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
                 }
             } else
-                throw new RtsException(404, "no such user!", Instant.now().toString());
+                throw new RtsException(HttpStatus.NOT_FOUND, "no such user!");
         }
 
         filterChain.doFilter(request, response);

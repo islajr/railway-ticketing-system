@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +24,7 @@ public class StationService {
     public ResponseEntity<StationResponse> createStation(NewStationRequest request) {
 
         if (stationRepository.existsByName(request.name())) {
-            throw new RtsException(409, "Station with name " + request.name() + " already exists", Instant.now().toString());
+            throw new RtsException(HttpStatus.CONFLICT, "Station with name " + request.name() + " already exists");
         } else {  // continue only if station with said name does not exist
             Station station = Station.builder()
                     .name(request.name())
@@ -40,7 +39,7 @@ public class StationService {
     }
 
     public ResponseEntity<StationResponse> deleteStation(Long stationId) {
-        Station station = stationRepository.findById(stationId).orElseThrow(() -> new RtsException(404, "Station with id " + stationId + " does not exist", Instant.now().toString()));
+        Station station = stationRepository.findById(stationId).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Station with id " + stationId + " does not exist"));
 
         stationRepository.delete(station);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -55,7 +54,7 @@ public class StationService {
         * - isActive
         * */
 
-        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(404, "Station not found", Instant.now().toString()));
+        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Station not found"));
 
         if (!Objects.equals(request.name(), "null") && !station.getName().equals(request.name())) {
             station.setName(request.name());
@@ -74,7 +73,7 @@ public class StationService {
     }
 
     public ResponseEntity<StationResponse> getStation(Long id) {
-        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(404, "Station not found", Instant.now().toString()));
+        Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Station not found"));
 
         return ResponseEntity.status(HttpStatus.OK).body(StationResponse.from(station));
 

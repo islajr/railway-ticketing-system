@@ -2,6 +2,8 @@ package org.project.railwayticketingservice.service;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.InvalidKeyException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
@@ -16,6 +18,8 @@ import org.project.railwayticketingservice.entity.Passenger;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
+import org.project.railwayticketingservice.util.CookieUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,6 +37,13 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final CookieUtils cookieUtils;
+
+    @Value("${security.jwt.refresh.expiration}")
+    int refreshExpiration;
+
+    @Value("${security.jwt.expiration}")
+    int accessTokenExpiration;
 
     public ResponseEntity<RegisterPassengerResponse> registerPassenger(RegisterPassengerRequest request) {
 
@@ -49,7 +60,8 @@ public class AuthService {
 
     }
 
-    public ResponseEntity<LoginPassengerResponse> loginPassenger(LoginPassengerRequest request) {
+    public ResponseEntity<LoginPassengerResponse> loginPassenger(LoginPassengerRequest request, HttpServletResponse response) {
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
@@ -70,7 +82,10 @@ public class AuthService {
                 } catch (JwtException ex) {
                     throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid token");
                 }
-                return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, refreshToken));
+
+                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000));
+                response.addCookie(refreshCookie);
+                return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, accessTokenExpiration / 1000 + "s"));
             }
         }
 
@@ -90,7 +105,7 @@ public class AuthService {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    public ResponseEntity<LoginAdminResponse> loginAdmin(LoginAdminRequest request) {
+    public ResponseEntity<LoginAdminResponse> loginAdmin(LoginAdminRequest request, HttpServletResponse response) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password())
@@ -102,10 +117,21 @@ public class AuthService {
 
             if (authentication.isAuthenticated()) {
                 String email = admin.getEmail();
-                return ResponseEntity.ok(new LoginAdminResponse(
-                        jwtService.generateToken(email),
-                        jwtService.generateRefreshToken(email)
-                ));
+                String accessToken;
+                String refreshToken;
+
+                try {
+                    accessToken = jwtService.generateToken(email);
+                    refreshToken = jwtService.generateRefreshToken(email);
+                } catch (InvalidKeyException ex) {
+                    throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid key");
+                } catch (JwtException ex) {
+                    throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid token");
+                }
+
+                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000));
+                response.addCookie(refreshCookie);
+                return ResponseEntity.ok(LoginAdminResponse.of(accessToken, accessTokenExpiration / 1000 + "s"));
             }
         }
 

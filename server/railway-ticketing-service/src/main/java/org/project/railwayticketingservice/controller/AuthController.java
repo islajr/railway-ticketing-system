@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
@@ -53,8 +54,8 @@ public class AuthController {
 
     })
     @PostMapping("/passenger/login")
-    public ResponseEntity<LoginPassengerResponse> loginPassenger(@RequestBody LoginPassengerRequest request) {
-        return authService.loginPassenger(request);
+    public ResponseEntity<LoginPassengerResponse> loginPassenger(@RequestBody LoginPassengerRequest request, HttpServletResponse response) {
+        return authService.loginPassenger(request, response);
     }
 
     // admin endpoints
@@ -82,8 +83,8 @@ public class AuthController {
 
     })
     @PostMapping("/admin/login")
-    public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request) {
-        return authService.loginAdmin(request);
+    public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request, HttpServletResponse response) {
+        return authService.loginAdmin(request, response);
     }
 
     @RequestMapping("/ping")

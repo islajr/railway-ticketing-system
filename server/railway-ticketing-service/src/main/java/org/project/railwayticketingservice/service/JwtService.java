@@ -22,10 +22,10 @@ public class JwtService {
     private final String secret;
 
     @Value("${security.jwt.expiration}")
-    long expiration;    // six hours
+    long expiration;    // ten minutes
 
     @Value("${security.jwt.refresh.expiration}")
-    long refreshExpiration;     // three days
+    long refreshExpiration;     // two weeks
 
     public JwtService() {
         try {

@@ -25,6 +25,7 @@ public class CookieUtils {
         cookie.setMaxAge(maxAgeSeconds);
         cookie.setDomain(clientURL);  // should be set to actual client prod domain
         cookie.setAttribute("SameSite", "Strict");
+        System.out.println("cookie successfully created! " + cookie);
         return cookie;
     }
 
@@ -41,6 +42,7 @@ public class CookieUtils {
         clearedCookie.setMaxAge(0); // expires immediately
         clearedCookie.setDomain(clientURL);
         clearedCookie.setAttribute("SameSite", "Strict");
+        System.out.println("cookie successfully cleared! " + clearedCookie);
         return clearedCookie;
     }
 }

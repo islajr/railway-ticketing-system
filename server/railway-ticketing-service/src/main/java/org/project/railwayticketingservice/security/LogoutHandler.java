@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.service.TokenService;
 import org.project.railwayticketingservice.util.CookieUtils;
+import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
 
     private final TokenService tokenService;
     private final CookieUtils cookieUtils;
+    private final Utilities utilities;
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
@@ -34,7 +36,14 @@ public class LogoutHandler implements org.springframework.security.web.authentic
                 throw new RtsException(HttpStatus.UNAUTHORIZED, "token is disallowed!");
             }
             // invalidate refresh token
-            Cookie clearRefreshCookie = cookieUtils.clearRefreshTokenCookie();
+            Cookie clearRefreshCookie;
+            if (utilities.isAdmin(authentication)) {
+                System.out.println("clearing cookies for admin " + authentication.getName());
+                clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("admin");
+            } else {    // if it's a passenger
+                System.out.println("clearing cookies for passenger " + authentication.getName());
+                clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("passenger");
+            }
             response.addCookie(clearRefreshCookie);
         } else {
             throw new RtsException(HttpStatus.BAD_REQUEST, "failed to logout!");

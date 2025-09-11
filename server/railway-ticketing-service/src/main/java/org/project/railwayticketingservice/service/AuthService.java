@@ -83,7 +83,7 @@ public class AuthService {
                     throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid token");
                 }
 
-                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000));
+                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000), "passenger");
                 response.addCookie(refreshCookie);
                 return ResponseEntity.ok(LoginPassengerResponse.of(accessToken, accessTokenExpiration / 1000 + "s"));
             }
@@ -129,12 +129,25 @@ public class AuthService {
                     throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid token");
                 }
 
-                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000));
+                Cookie refreshCookie = cookieUtils.createRefreshTokenCookie(refreshToken, (refreshExpiration / 1000), "admin");
                 response.addCookie(refreshCookie);
                 return ResponseEntity.ok(LoginAdminResponse.of(accessToken, accessTokenExpiration / 1000 + "s"));
             }
         }
 
         throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid email or password");
+    }
+
+    public ResponseEntity<LoginAdminResponse> refreshAdminToken(String refreshToken, HttpServletResponse response) {
+        return null;
+
+        /*
+        * come up with a system that stores refresh tokens upon creation in a map against their respective e-mails
+        * this map is then traversed when the refresh token needs to be verified.
+        * */
+    }
+
+    public ResponseEntity<LoginPassengerResponse> refreshPassengerToken(String refreshToken, HttpServletResponse response) {
+        return null;
     }
 }

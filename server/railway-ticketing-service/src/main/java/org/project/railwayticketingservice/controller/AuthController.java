@@ -16,10 +16,7 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterAdminRespon
 import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerResponse;
 import org.project.railwayticketingservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/rts/auth")
@@ -85,6 +82,16 @@ public class AuthController {
     @PostMapping("/admin/login")
     public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request, HttpServletResponse response) {
         return authService.loginAdmin(request, response);
+    }
+
+    @GetMapping("/admin/refresh")
+    public ResponseEntity<LoginAdminResponse> refreshAdminToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        return authService.refreshAdminToken(refreshToken, response);
+    }
+
+    @GetMapping("/passenger/refresh")
+    public ResponseEntity<LoginPassengerResponse> refreshPassengerToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        return authService.refreshPassengerToken(refreshToken, response);
     }
 
     @RequestMapping("/ping")

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
@@ -15,10 +16,7 @@ import org.project.railwayticketingservice.dto.auth.response.RegisterAdminRespon
 import org.project.railwayticketingservice.dto.auth.response.RegisterPassengerResponse;
 import org.project.railwayticketingservice.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/rts/auth")
@@ -53,8 +51,8 @@ public class AuthController {
 
     })
     @PostMapping("/passenger/login")
-    public ResponseEntity<LoginPassengerResponse> loginPassenger(@RequestBody LoginPassengerRequest request) {
-        return authService.loginPassenger(request);
+    public ResponseEntity<LoginPassengerResponse> loginPassenger(@RequestBody LoginPassengerRequest request, HttpServletResponse response) {
+        return authService.loginPassenger(request, response);
     }
 
     // admin endpoints
@@ -82,8 +80,18 @@ public class AuthController {
 
     })
     @PostMapping("/admin/login")
-    public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request) {
-        return authService.loginAdmin(request);
+    public ResponseEntity<LoginAdminResponse> loginAdmin(@RequestBody LoginAdminRequest request, HttpServletResponse response) {
+        return authService.loginAdmin(request, response);
+    }
+
+    @GetMapping("/admin/refresh")
+    public ResponseEntity<LoginAdminResponse> refreshAdminToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        return authService.refreshAdminToken(refreshToken, response);
+    }
+
+    @GetMapping("/passenger/refresh")
+    public ResponseEntity<LoginPassengerResponse> refreshPassengerToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
+        return authService.refreshPassengerToken(refreshToken, response);
     }
 
     @RequestMapping("/ping")

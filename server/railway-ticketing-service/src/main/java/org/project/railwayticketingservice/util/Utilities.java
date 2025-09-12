@@ -14,14 +14,13 @@ import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -154,6 +153,10 @@ public class Utilities {
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
         response.getWriter().flush();
+    }
+
+    public boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().equals(Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
 

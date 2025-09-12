@@ -17,7 +17,9 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.getWriter().write("""
-                "message": "logout successful!"
+                {
+                    "message": "logout successful!"
+                }
                 """);
     }
 }

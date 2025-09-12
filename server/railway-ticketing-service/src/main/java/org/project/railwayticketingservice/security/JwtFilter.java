@@ -9,14 +9,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
-import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
 import org.project.railwayticketingservice.service.TokenService;
 import org.project.railwayticketingservice.util.Utilities;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -58,9 +56,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // check if token has been disallowed
         if (!tokenService.isTokenAllowed(token)) {
-            System.out.println("blacklisting token!");
-            tokenService.disallowToken(token);
-            throw new RtsException(HttpStatus.UNAUTHORIZED, "Disallowed JWT Token");
+            utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Blacklisted JWT Token");
+            return;
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -74,7 +71,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Failed to verify JWT Token");
+                    return;
                 }
             } else if (adminRepository.existsByEmail(email)) {
                 AdminPrincipal adminPrincipal = (AdminPrincipal) customUserDetailsService.loadUserByUsername(email);
@@ -85,10 +83,13 @@ public class JwtFilter extends OncePerRequestFilter {
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                    utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Failed to verify JWT Token");
+                    return;
                 }
-            } else
-                throw new RtsException(HttpStatus.NOT_FOUND, "no such user!");
+            } else {
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT Token");
+                return;
+            }
         }
 
         filterChain.doFilter(request, response);

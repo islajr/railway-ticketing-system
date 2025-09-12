@@ -5,9 +5,9 @@ import lombok.Builder;
 @Builder
 public record LoginAdminResponse(
         String accessToken,
-        String refreshToken
+        String expiration
 ) {
-    public static LoginAdminResponse of(String accessToken, String refreshToken) {
-        return new LoginAdminResponse(accessToken, refreshToken);
+    public static LoginAdminResponse of(String accessToken, String expiration) {
+        return new LoginAdminResponse(accessToken, expiration);
     }
 }

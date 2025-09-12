@@ -6,14 +6,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.project.railwayticketingservice.exception.exceptions.RtsException;
+import lombok.SneakyThrows;
 import org.project.railwayticketingservice.repository.RefreshTokenRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
 import org.project.railwayticketingservice.service.TokenService;
 import org.project.railwayticketingservice.util.CookieUtils;
 import org.project.railwayticketingservice.util.Utilities;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,6 +32,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
 
+    @SneakyThrows
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         final String authHeader = request.getHeader("Authorization");
@@ -44,7 +44,8 @@ public class LogoutHandler implements org.springframework.security.web.authentic
                 tokenService.disallowToken(token);
                 System.out.println("token disallowed for e-mail " + jwtService.extractEmail(token));
             } else {
-                throw new RtsException(HttpStatus.UNAUTHORIZED, "token is disallowed!");
+//                throw new RtsException(HttpStatus.UNAUTHORIZED, "token is disallowed!");
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "token is disallowed!");
             }
             // invalidate refresh token
             Cookie clearRefreshCookie;
@@ -59,7 +60,8 @@ public class LogoutHandler implements org.springframework.security.web.authentic
             refreshTokenRepository.deleteRefreshTokenByEmail(email);
             response.addCookie(clearRefreshCookie);
         } else {
-            throw new RtsException(HttpStatus.BAD_REQUEST, "failed to logout!");
+//            throw new RtsException(HttpStatus.BAD_REQUEST, "failed to logout!");
+            utilities.handleException(response, request, HttpServletResponse.SC_BAD_REQUEST, "failed to logout!");
         }
 
         // invalidate session

@@ -61,8 +61,13 @@ public class ReservationController {
 
     })
     @GetMapping("")
-    public ResponseEntity<List<ReservationResponse>> viewAllReservations() {
-        return reservationService.getAllReservations();
+    public ResponseEntity<List<ReservationResponse>> viewAllReservations(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "5") int size,
+            @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String direction
+    ) {
+        return reservationService.getAllReservations(page, size, sortBy, direction);
     }
 
     @Operation(description = "This endpoint deletes a reservation.")

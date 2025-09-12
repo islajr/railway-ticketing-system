@@ -3,6 +3,9 @@ package org.project.railwayticketingservice.repository;
 import org.project.railwayticketingservice.entity.Passenger;
 import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Schedule;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +18,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, String
 
     List<Reservation> findAllByIdAndPassenger(String id, Passenger passenger);
     List<Reservation> findAllByPassenger(Passenger passenger);
+
+    Page<Reservation> findAllReservationsByPassenger(Passenger passenger, Pageable pageable);
+
+//    Page<Reservation> findAllByPassenger(Passenger passenger);
 
     Reservation findReservationByScheduleAndPassenger(Schedule schedule, Passenger passenger);
 

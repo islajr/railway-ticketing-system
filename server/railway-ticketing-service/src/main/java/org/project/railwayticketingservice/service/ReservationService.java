@@ -12,6 +12,10 @@ import org.project.railwayticketingservice.repository.ReservationRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -98,11 +102,13 @@ public class ReservationService {
         }
     }
 
-    public ResponseEntity<List<ReservationResponse>> getAllReservations() {
+    public ResponseEntity<List<ReservationResponse>> getAllReservations(int page, int size, String sortBy, String direction) {
 
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
-        List<Reservation> reservations = reservationRepository.findAllByPassenger(passenger);
+        Sort sort = direction.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Reservation> reservations = reservationRepository.findAllReservationsByPassenger(passenger, pageable);
 
         return ResponseEntity.status(HttpStatus.OK).body(
                 reservations.stream()

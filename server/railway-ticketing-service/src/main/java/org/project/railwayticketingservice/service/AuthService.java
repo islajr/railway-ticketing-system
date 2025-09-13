@@ -18,6 +18,7 @@ import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.AdminRepository;
 import org.project.railwayticketingservice.repository.PassengerRepository;
 import org.project.railwayticketingservice.repository.RefreshTokenRepository;
+import org.project.railwayticketingservice.security.AuthenticationEntryPoint;
 import org.project.railwayticketingservice.util.CookieUtils;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final Utilities utilities;
     private final CustomUserDetailsService customUserDetailsService;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
     @Value("${security.jwt.refresh.expiration}")
     int refreshExpiration;
@@ -106,7 +109,7 @@ public class AuthService {
             }
         }
 
-        throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid email or password");
+        throw new RtsException(HttpStatus.NOT_FOUND, "Passenger not found!");
     }
 
     public ResponseEntity<RegisterAdminResponse> registerAdmin(RegisterAdminRequest request) {

@@ -223,7 +223,7 @@ public class ScheduleService {
 
     }
 
-    @Scheduled(fixedRate = 60000)   // runs every minute
+    @Scheduled(fixedRateString = "${schedule.status.scanner.interval:60000}")   // runs every minute
     private void scheduleStatusStarterTask() {
 
         System.out.println("***'status starter' task started ***");
@@ -243,7 +243,7 @@ public class ScheduleService {
         }
     }
 
-    @Scheduled(fixedRate = 60000)   // runs every minute
+    @Scheduled(fixedRateString = "${schedule.status.scanner.interval:60000}")   // runs every minute
     private void scheduleStatusCompleterTask() {
 
         System.out.println("***'status completer' task started ***");

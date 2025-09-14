@@ -28,4 +28,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
     List<Schedule> findSchedulesByOriginAndDestinationAndDepartureTime(Station origin, Station destination, LocalDateTime departureTime);
 
     List<Schedule> findSchedulesByDepartureTimeBetween(LocalDateTime upper, LocalDateTime lower);
+
+    List<Schedule> findSchedulesByDepartureTimeAfterAndStatus(LocalDateTime now, String status);
 }

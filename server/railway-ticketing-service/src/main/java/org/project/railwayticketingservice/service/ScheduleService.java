@@ -7,6 +7,7 @@ import org.project.railwayticketingservice.dto.app.request.ScheduleUpdateRequest
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
 import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.entity.enums.Status;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.ReservationRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
@@ -15,6 +16,7 @@ import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -211,5 +213,45 @@ public class ScheduleService {
 
         }
 
+    }
+
+    @Scheduled(fixedRate = 60000)   // runs every minute
+    private void scheduleStatusStarterTask() {
+
+        System.out.println("***'status starter' task started ***");
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeAfterAndStatus(now, String.valueOf(Status.NOT_STARTED));
+
+        if (!schedules.isEmpty()) {
+            for (Schedule schedule : schedules) {
+                schedule.setStatus(String.valueOf(Status.STARTED));
+            }
+            scheduleRepository.saveAll(schedules);
+            System.out.println("Marked " + schedules.size() + " schedules as 'started' at " + now);
+        } else {
+            System.out.println("***'status starter' task stopped ***");
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)   // runs every minute
+    private void scheduleStatusCompleterTask() {
+
+        System.out.println("***'status completer' task started ***");
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeAfterAndStatus(now, String.valueOf(Status.STARTED));
+
+        if (!schedules.isEmpty()) {
+            for (Schedule schedule : schedules) {
+                schedule.setStatus(String.valueOf(Status.COMPLETED));
+            }
+            scheduleRepository.saveAll(schedules);
+            System.out.println("Marked " + schedules.size() + " schedules as 'completed' at " + now);
+        } else {
+            System.out.println("***'status completer' task stopped ***");
+        }
     }
 }

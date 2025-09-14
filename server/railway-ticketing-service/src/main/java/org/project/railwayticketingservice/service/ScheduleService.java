@@ -56,6 +56,11 @@ public class ScheduleService {
             throw new RtsException(HttpStatus.NOT_FOUND, "Train not found");
         }
 
+        // checking that arrival > departure
+        if (request.arrival().isBefore(request.departure())) {
+            throw new RtsException(HttpStatus.CONFLICT, "arrival time cannot be before departure time.");
+        }
+
         // convert to station
         Station origin = stationRepository.findStationByName(request.origin());
         Station destination = stationRepository.findStationByName(request.destination());

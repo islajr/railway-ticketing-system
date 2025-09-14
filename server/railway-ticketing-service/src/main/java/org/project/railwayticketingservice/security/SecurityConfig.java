@@ -90,12 +90,12 @@ public class SecurityConfig {
     public AuthenticationManager authManager() {
         return authentication -> {
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(authentication.getName());
-            if (passwordEncoder().matches(userDetails.getPassword(), authentication.getCredentials().toString())) {
+            if (!passwordEncoder().matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
                 throw new BadCredentialsException("Incorrect password!");
             }
 
             // if the above checks...
-            return new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(), userDetails.getAuthorities());
+            return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         };
     }
 }

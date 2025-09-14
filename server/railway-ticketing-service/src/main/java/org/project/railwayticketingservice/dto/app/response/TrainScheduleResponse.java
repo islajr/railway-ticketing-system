@@ -3,8 +3,8 @@ package org.project.railwayticketingservice.dto.app.response;
 import lombok.Builder;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
-import org.project.railwayticketingservice.entity.Time;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +17,9 @@ public record TrainScheduleResponse(
     boolean isFull,
     String origin,
     String destination,
-    Time departureTime,
-    Time arrivalTime,
-    boolean isCompleted
+    String status,
+    LocalDateTime departureTime,
+    LocalDateTime arrivalTime
 ) {
     public static TrainScheduleResponse fromSchedule(Schedule schedule) {
         return TrainScheduleResponse.builder()
@@ -33,9 +33,9 @@ public record TrainScheduleResponse(
                 .isFull(schedule.isFull())
                 .origin(schedule.getOrigin().getName())
                 .destination(schedule.getDestination().getName())
-                .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
-                .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                .isCompleted(schedule.isCompleted())
+                .departureTime(schedule.getDepartureTime())
+                .arrivalTime(schedule.getArrivalTime())
+                .status(schedule.getStatus())
                 .build();
     }
 }

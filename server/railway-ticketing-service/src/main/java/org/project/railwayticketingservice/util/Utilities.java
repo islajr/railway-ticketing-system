@@ -14,13 +14,14 @@ import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -44,7 +45,7 @@ public class Utilities {
             }
 
             case "time" -> {
-                return scheduleRepository.findSchedulesByDepartureTime(request.time().getLocalDateTime());
+                return scheduleRepository.findSchedulesByDepartureTime(request.time());
             }
             default -> {
                 throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid filter!");
@@ -64,7 +65,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDestination(origin, destination);
                     }
                     case "time" -> {
-                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time().getLocalDateTime());
+                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     default -> {
                         throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
@@ -78,7 +79,7 @@ public class Utilities {
                         return scheduleRepository.findSchedulesByOriginAndDestination(origin, destination);
                     }
                     case "time" -> {
-                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time().getLocalDateTime());
+                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     default -> {
                         throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
@@ -88,10 +89,10 @@ public class Utilities {
             case "time" -> {    // second filter can either be origin or destination
                 switch (filter2) {
                     case "origin" -> {
-                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time().getLocalDateTime());
+                        return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     case "destination" -> {
-                        return scheduleRepository.findSchedulesByDestinationAndDepartureTime(origin, request.time().getLocalDateTime());
+                        return scheduleRepository.findSchedulesByDestinationAndDepartureTime(origin, request.time());
                     }
                     default -> {
                         throw new RtsException(HttpStatus.BAD_REQUEST, "Invalid second filter!");
@@ -153,10 +154,6 @@ public class Utilities {
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
         response.getWriter().flush();
-    }
-
-    public boolean isAdmin(Authentication authentication) {
-        return authentication.getAuthorities().equals(Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")));
     }
 
 

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +35,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI())
+        );
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI())
         );
     }
 

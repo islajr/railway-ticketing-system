@@ -6,7 +6,11 @@ import org.project.railwayticketingservice.dto.app.request.ScheduleCreationReque
 import org.project.railwayticketingservice.dto.app.request.ScheduleUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
-import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.entity.Schedule;
+import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.project.railwayticketingservice.entity.Station;
+import org.project.railwayticketingservice.entity.Train;
+import org.project.railwayticketingservice.entity.enums.Status;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.ReservationRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
@@ -15,8 +19,10 @@ import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,11 +47,13 @@ public class ScheduleService {
                 // check for station of origin
                 if (request.origin().equals(schedule.getOrigin().toString())) {
                     // check for departure times
-                    if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
+                    if (request.departure().equals(schedule.getDepartureTime())) {
                         throw new RtsException(HttpStatus.CONFLICT, "there is already a schedule fixed for this period.");  // try another train or time?
                     }
                 }
             }
+        } else {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Train not found");
         }
 
         // convert to station
@@ -62,9 +70,9 @@ public class ScheduleService {
                     .isFull(false)
                     .origin(origin)
                     .destination(destination)
-                    .departureTime(request.departure().getLocalDateTime())
-                    .arrivalTime(request.arrival().getLocalDateTime())
-                    .isCompleted(false)
+                    .departureTime(request.departure())
+                    .arrivalTime(request.arrival())
+                    .status(String.valueOf(request.status()))
                     .build();
 
             scheduleRepository.save(schedule);
@@ -122,17 +130,23 @@ public class ScheduleService {
                 changed = true;
                 System.out.println("updated destination for train " + id);
             }   // departure
-            if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {
-                schedule.setDepartureTime(request.departureTime().getLocalDateTime());
+            if (request.departureTime() != null && !Objects.equals(request.departureTime(), schedule.getDepartureTime())) {
+                schedule.setDepartureTime(request.departureTime());
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated departure time for train " + id);
             }   // arrival
-            if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), Time.fromLocalDateTime(schedule.getArrivalTime()))) {
-                schedule.setArrivalTime(request.arrivalTime().getLocalDateTime());
+            if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), schedule.getArrivalTime())) {
+                schedule.setArrivalTime(request.arrivalTime());
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated arrival time for train " + id);
+            }   // status
+            if (request.status() != null && !Objects.equals(String.valueOf(request.status()), schedule.getStatus())) {
+                schedule.setStatus(String.valueOf(request.status()));
+                scheduleRepository.save(schedule);
+                changed = true;
+                System.out.println("updated status for train " + id);
             }
 
             if (changed) {
@@ -167,7 +181,7 @@ public class ScheduleService {
                 schedules = utilities.getSchedules(filter1, filter2, request);
             }
         } else {
-            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time().getLocalDateTime());
+            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time());
         }
 
         // convert schedules to proper response DTOs
@@ -202,5 +216,45 @@ public class ScheduleService {
 
         }
 
+    }
+
+    @Scheduled(fixedRate = 60000)   // runs every minute
+    private void scheduleStatusStarterTask() {
+
+        System.out.println("***'status starter' task started ***");
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeAfterAndStatus(now, String.valueOf(Status.NOT_STARTED));
+
+        if (!schedules.isEmpty()) {
+            for (Schedule schedule : schedules) {
+                schedule.setStatus(String.valueOf(Status.STARTED));
+            }
+            scheduleRepository.saveAll(schedules);
+            System.out.println("Marked " + schedules.size() + " schedules as 'started' at " + now);
+        } else {
+            System.out.println("***'status starter' task stopped ***");
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)   // runs every minute
+    private void scheduleStatusCompleterTask() {
+
+        System.out.println("***'status completer' task started ***");
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeAfterAndStatus(now, String.valueOf(Status.STARTED));
+
+        if (!schedules.isEmpty()) {
+            for (Schedule schedule : schedules) {
+                schedule.setStatus(String.valueOf(Status.COMPLETED));
+            }
+            scheduleRepository.saveAll(schedules);
+            System.out.println("Marked " + schedules.size() + " schedules as 'completed' at " + now);
+        } else {
+            System.out.println("***'status completer' task stopped ***");
+        }
     }
 }

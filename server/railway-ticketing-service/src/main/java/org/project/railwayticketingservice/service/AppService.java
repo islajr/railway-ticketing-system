@@ -47,7 +47,7 @@ public class AppService {
 
     }
 
-    /* should be its own job, running for all clients later on. may even include location specificity */
+    /* may later include location specificity */
     public ResponseEntity<List<TrainScheduleResponse>> getUpcomingTrainSchedules() {
         List<Schedule> upcomingSchedules = scheduleRepository.findSchedulesByDepartureTimeBetween(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
 

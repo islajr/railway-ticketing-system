@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,11 +42,13 @@ public class ScheduleService {
                 // check for station of origin
                 if (request.origin().equals(schedule.getOrigin().toString())) {
                     // check for departure times
-                    if (request.departure().getLocalDateTime().equals(schedule.getDepartureTime())) {
+                    if (request.departure().equals(schedule.getDepartureTime())) {
                         throw new RtsException(HttpStatus.CONFLICT, "there is already a schedule fixed for this period.");  // try another train or time?
                     }
                 }
             }
+        } else {
+            throw new RtsException(HttpStatus.NOT_FOUND, "Train not found");
         }
 
         // convert to station
@@ -62,8 +65,8 @@ public class ScheduleService {
                     .isFull(false)
                     .origin(origin)
                     .destination(destination)
-                    .departureTime(request.departure().getLocalDateTime())
-                    .arrivalTime(request.arrival().getLocalDateTime())
+                    .departureTime(request.departure())
+                    .arrivalTime(request.arrival())
                     .status(String.valueOf(request.status()))
                     .build();
 
@@ -123,13 +126,13 @@ public class ScheduleService {
                 System.out.println("updated destination for train " + id);
             }   // departure
             if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {
-                schedule.setDepartureTime(request.departureTime().getLocalDateTime());
+                schedule.setDepartureTime(request.departureTime());
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated departure time for train " + id);
             }   // arrival
             if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), Time.fromLocalDateTime(schedule.getArrivalTime()))) {
-                schedule.setArrivalTime(request.arrivalTime().getLocalDateTime());
+                schedule.setArrivalTime(request.arrivalTime());
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated arrival time for train " + id);

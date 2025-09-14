@@ -4,13 +4,15 @@ import lombok.Builder;
 import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Time;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record ReservationResponse(
         String reservationId,
         String train,
         String seatNumber,
         String origin,
-        Time time
+        LocalDateTime time
 
 ) {
     public static ReservationResponse from(Reservation reservation) {
@@ -19,7 +21,7 @@ public record ReservationResponse(
                 .train(reservation.getSchedule().getTrain().getName())
                 .seatNumber(reservation.getScheduleSeat().getLabel())
                 .origin(reservation.getSchedule().getOrigin().getName())
-                .time(Time.fromLocalDateTime(reservation.getSchedule().getArrivalTime()))
+                .time(reservation.getSchedule().getArrivalTime())
                 .build();
     }
 }

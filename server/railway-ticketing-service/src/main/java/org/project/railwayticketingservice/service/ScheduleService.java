@@ -64,7 +64,7 @@ public class ScheduleService {
                     .destination(destination)
                     .departureTime(request.departure().getLocalDateTime())
                     .arrivalTime(request.arrival().getLocalDateTime())
-                    .isCompleted(false)
+                    .status(String.valueOf(request.status()))
                     .build();
 
             scheduleRepository.save(schedule);
@@ -133,6 +133,12 @@ public class ScheduleService {
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated arrival time for train " + id);
+            }   // status
+            if (request.status() != null && !Objects.equals(String.valueOf(request.status()), schedule.getStatus())) {
+                schedule.setStatus(String.valueOf(request.status()));
+                scheduleRepository.save(schedule);
+                changed = true;
+                System.out.println("updated status for train " + id);
             }
 
             if (changed) {

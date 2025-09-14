@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.project.railwayticketingservice.entity.enums.Status;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,8 +48,8 @@ public class Schedule {
     @ManyToOne(fetch = FetchType.EAGER)
     private Station destination;
 
-    @Column(nullable = false, name = "is_completed")
-    private boolean isCompleted;
+    @Column(nullable = false, name = "status")
+    private String status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

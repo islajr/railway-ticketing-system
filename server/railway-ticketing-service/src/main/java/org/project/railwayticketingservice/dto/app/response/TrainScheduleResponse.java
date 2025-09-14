@@ -17,9 +17,9 @@ public record TrainScheduleResponse(
     boolean isFull,
     String origin,
     String destination,
+    String status,
     Time departureTime,
-    Time arrivalTime,
-    boolean isCompleted
+    Time arrivalTime
 ) {
     public static TrainScheduleResponse fromSchedule(Schedule schedule) {
         return TrainScheduleResponse.builder()
@@ -35,7 +35,7 @@ public record TrainScheduleResponse(
                 .destination(schedule.getDestination().getName())
                 .departureTime(Time.fromLocalDateTime(schedule.getDepartureTime()))
                 .arrivalTime(Time.fromLocalDateTime(schedule.getArrivalTime()))
-                .isCompleted(schedule.isCompleted())
+                .status(schedule.getStatus())
                 .build();
     }
 }

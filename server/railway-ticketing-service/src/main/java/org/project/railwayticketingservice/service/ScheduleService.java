@@ -6,7 +6,10 @@ import org.project.railwayticketingservice.dto.app.request.ScheduleCreationReque
 import org.project.railwayticketingservice.dto.app.request.ScheduleUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
-import org.project.railwayticketingservice.entity.*;
+import org.project.railwayticketingservice.entity.Schedule;
+import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.project.railwayticketingservice.entity.Station;
+import org.project.railwayticketingservice.entity.Train;
 import org.project.railwayticketingservice.entity.enums.Status;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.ReservationRepository;
@@ -127,13 +130,13 @@ public class ScheduleService {
                 changed = true;
                 System.out.println("updated destination for train " + id);
             }   // departure
-            if (request.departureTime() != null && !Objects.equals(request.departureTime(), Time.fromLocalDateTime(schedule.getDepartureTime()))) {
+            if (request.departureTime() != null && !Objects.equals(request.departureTime(), schedule.getDepartureTime())) {
                 schedule.setDepartureTime(request.departureTime());
                 scheduleRepository.save(schedule);
                 changed = true;
                 System.out.println("updated departure time for train " + id);
             }   // arrival
-            if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), Time.fromLocalDateTime(schedule.getArrivalTime()))) {
+            if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), schedule.getArrivalTime())) {
                 schedule.setArrivalTime(request.arrivalTime());
                 scheduleRepository.save(schedule);
                 changed = true;
@@ -178,7 +181,7 @@ public class ScheduleService {
                 schedules = utilities.getSchedules(filter1, filter2, request);
             }
         } else {
-            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time().getLocalDateTime());
+            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time());
         }
 
         // convert schedules to proper response DTOs

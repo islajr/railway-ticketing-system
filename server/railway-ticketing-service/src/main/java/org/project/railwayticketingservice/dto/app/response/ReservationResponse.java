@@ -2,7 +2,6 @@ package org.project.railwayticketingservice.dto.app.response;
 
 import lombok.Builder;
 import org.project.railwayticketingservice.entity.Reservation;
-import org.project.railwayticketingservice.entity.Time;
 
 import java.time.LocalDateTime;
 

@@ -45,6 +45,10 @@ public class ReservationService {
         // check if the schedule is full anyway
         if (!schedule.isFull()) {
 
+            // check if the schedule is already active
+            if (schedule.getStatus().equals("COMPLETED") || schedule.getStatus().equals("STARTED"))
+                throw new RtsException(HttpStatus.CONFLICT, "Schedule already completed");
+
             // check if passenger already has a reservation for the schedule in question
             if (possibleReservation != null) {
                 throw new RtsException(HttpStatus.CONFLICT, "Reservation already exists");

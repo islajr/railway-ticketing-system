@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.security;
 
 import lombok.RequiredArgsConstructor;
+import org.project.railwayticketingservice.ratelimit.RateLimitFilter;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final LogoutHandler logoutHandler;
     private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -68,6 +70,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(c -> c.configurationSource(customCorsConfiguration))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authEntryPoint)

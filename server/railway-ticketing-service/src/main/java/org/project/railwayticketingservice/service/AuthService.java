@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.InvalidKeyException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.auth.request.LoginAdminRequest;
 import org.project.railwayticketingservice.dto.auth.request.LoginPassengerRequest;
 import org.project.railwayticketingservice.dto.auth.request.RegisterAdminRequest;
@@ -28,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -60,6 +62,7 @@ public class AuthService {
         passenger.setPassword(passwordEncoder.encode(passenger.getPassword()));
         passengerRepository.save(passenger);
 
+        log.info("Successfully registered passenger with e-mail: {}", passenger.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
@@ -94,9 +97,11 @@ public class AuthService {
                             .token(refreshToken)
                             .email(email)
                             .build());
+                    log.info("Successfully registered passenger refresh token for e-mail: {}", email);
                 } else {
                     storedToken.setToken(refreshToken);
                     refreshTokenRepository.save(storedToken);
+                    log.info("Successfully updated passenger refresh token for e-mail: {}", email);
                 }
 
                 // refresh cookie setup
@@ -119,6 +124,7 @@ public class AuthService {
         admin.setPassword(passwordEncoder.encode(admin.getPassword()));
         adminRepository.save(admin);
 
+        log.info("Successfully registered admin with e-mail: {}", admin.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -153,9 +159,11 @@ public class AuthService {
                             .token(refreshToken)
                             .email(email)
                             .build());
+                    log.info("Successfully registered admin refresh token for e-mail: {}", email);
                 } else {
                     storedToken.setToken(refreshToken);
                     refreshTokenRepository.save(storedToken);
+                    log.info("Successfully updated admin refresh token for e-mail: {}", email);
                 }
 
                 // refresh cookie setup
@@ -196,6 +204,7 @@ public class AuthService {
 
         // rotate the token
         String newAccessToken = jwtService.generateToken(storedToken.getEmail());
+        log.info("Successfully refreshed admin token for e-mail: {}", storedToken.getEmail());
         return ResponseEntity.ok(LoginAdminResponse.of(newAccessToken, accessTokenExpiration / 1000 + "s"));
     }
 
@@ -227,6 +236,7 @@ public class AuthService {
 
         // rotate the token
         String newAccessToken = jwtService.generateToken(storedToken.getEmail());
+        log.info("Successfully refreshed passenger token for e-mail: {}", storedToken.getEmail());
         return ResponseEntity.ok(LoginPassengerResponse.of(newAccessToken, accessTokenExpiration / 1000 + "s"));
     }
 }

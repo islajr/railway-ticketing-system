@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.security;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
@@ -8,6 +9,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 
+@Slf4j
 @Component
 public class CustomCorsConfiguration implements CorsConfigurationSource {
 
@@ -21,7 +23,7 @@ public class CustomCorsConfiguration implements CorsConfigurationSource {
 
         if (origin != null) {
 
-            System.out.println("origin: " + origin);
+            log.info("Allowing incoming CORS request from: {}", origin);
 
             corsConfiguration.setAllowCredentials(true);
             corsConfiguration.addAllowedOrigin(origin);

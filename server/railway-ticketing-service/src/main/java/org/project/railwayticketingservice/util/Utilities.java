@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Schedule;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class Utilities {
@@ -38,13 +40,16 @@ public class Utilities {
 
         switch (filter) {
             case "origin" -> {
+                log.info("Successfully filtered schedules by origin");
                 return scheduleRepository.findSchedulesByOrigin(origin);
             }
             case "destination" -> {
+                log.info("Successfully filtered schedules by destination");
                 return scheduleRepository.findSchedulesByDestination(destination);
             }
 
             case "time" -> {
+                log.info("Successfully filtered schedules by departure time");
                 return scheduleRepository.findSchedulesByDepartureTime(request.time());
             }
             default -> {
@@ -62,9 +67,11 @@ public class Utilities {
             case "origin" -> {     // second filter can either be destination or time
                 switch (filter2) {
                     case "destination" -> {
+                        log.info("Successfully filtered schedules by origin and destination");
                         return scheduleRepository.findSchedulesByOriginAndDestination(origin, destination);
                     }
                     case "time" -> {
+                        log.info("Successfully filtered schedules by origin and departure time");
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     default -> {
@@ -76,9 +83,11 @@ public class Utilities {
             case "destination" -> {     // second filter can either be origin or time
                 switch (filter2) {
                     case "origin" -> {
+                        log.info("Successfully filtered schedules by destination and origin");
                         return scheduleRepository.findSchedulesByOriginAndDestination(origin, destination);
                     }
                     case "time" -> {
+                        log.info("Successfully filtered schedules by destination and departure time");
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     default -> {
@@ -89,9 +98,11 @@ public class Utilities {
             case "time" -> {    // second filter can either be origin or destination
                 switch (filter2) {
                     case "origin" -> {
+                        log.info("Successfully filtered schedules by departure time and origin");
                         return scheduleRepository.findSchedulesByOriginAndDepartureTime(origin, request.time());
                     }
                     case "destination" -> {
+                        log.info("Successfully filtered schedules by departure time and destination");
                         return scheduleRepository.findSchedulesByDestinationAndDepartureTime(origin, request.time());
                     }
                     default -> {
@@ -124,6 +135,7 @@ public class Utilities {
         }
 
         schedule.setSeats(seats);
+        log.info("Successfully generated seats for schedule: {}", schedule);
         scheduleSeatRepository.saveAll(seats);
     }
 
@@ -135,7 +147,7 @@ public class Utilities {
         seat.setReserved(false);
         seat.setReservation(null);
 
-        System.out.println("freed up seat: " + seat.getLabel() + "from schedule: " + schedule.getId());
+        log.info("Successfully freed up seat: {}from schedule: {}", seat.getLabel(), schedule.getId());
 
         scheduleRepository.save(schedule);
         scheduleSeatRepository.save(seat);
@@ -152,6 +164,7 @@ public class Utilities {
         errorDetails.put("error", HttpStatus.valueOf(status).getReasonPhrase());
         errorDetails.put("path", request.getRequestURI());
 
+        log.error(errorDetails.toString());
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
         response.getWriter().flush();
     }

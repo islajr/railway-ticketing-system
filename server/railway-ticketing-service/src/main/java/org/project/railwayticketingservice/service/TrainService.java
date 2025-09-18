@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.app.request.NewTrainRequest;
 import org.project.railwayticketingservice.dto.app.request.TrainUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TrainService {
@@ -33,7 +35,7 @@ public class TrainService {
                     .isActive(true)
                     .build();
             trainRepository.save(train);
-            System.out.println("train successfully created");
+            log.info("Train '{}' successfully created", train.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     NewTrainResponse.from(train)
             );
@@ -46,6 +48,7 @@ public class TrainService {
                 () -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!")
         );
 
+        log.info("Train '{}' successfully retrieved", train.getName());
         return ResponseEntity.status(HttpStatus.OK).body(
                 NewTrainResponse.from(train)
         );
@@ -62,13 +65,16 @@ public class TrainService {
 
         if (!Objects.equals(request.name(), "null") && !train.getName().equals(request.name())) {
             train.setName(request.name());
+            log.info("Train name - '{}' successfully updated", train.getName());
         }
 
         if (!Objects.equals(request.isActive(), "null") && !String.valueOf(train.isActive()).equals(request.isActive())) {
             train.setActive(Boolean.parseBoolean(request.isActive().strip()));
+            log.info("Train - '{}' active status successfully updated", train.isActive());
         }
 
         trainRepository.save(train);
+        log.info("Train '{}' successfully updated", train.getName());
         return ResponseEntity.status(HttpStatus.OK).body(
                 NewTrainResponse.from(train));
     }
@@ -77,6 +83,7 @@ public class TrainService {
         Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!"));
 
         trainRepository.delete(train);
+        log.info("Train '{}' successfully removed", train.getName());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -84,6 +91,7 @@ public class TrainService {
         List<Train> trains = trainRepository.findAll();
 
         if (trains.isEmpty()) {
+            log.warn("Train list is empty");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -92,6 +100,8 @@ public class TrainService {
         for (Train train : trains) {
             trainResponses.add(NewTrainResponse.from(train));
         }
+
+        log.info("Successfully retrieved {} trains", trainResponses.size());
         return ResponseEntity.status(HttpStatus.OK).body(trainResponses);
     }
 }

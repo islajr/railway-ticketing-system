@@ -100,6 +100,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } else {    // over the limit?
+            logger.error("Rate limit exceeded");
             response.setStatus(429);
             response.setContentType("application/json");
             response.setHeader("X-RateLimit-Remaining", String.valueOf(probe.getRemainingTokens()));

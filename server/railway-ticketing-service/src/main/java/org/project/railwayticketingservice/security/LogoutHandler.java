@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.repository.RefreshTokenRepository;
 import org.project.railwayticketingservice.service.CustomUserDetailsService;
 import org.project.railwayticketingservice.service.JwtService;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+@Slf4j
 @Component
 @Transactional
 @RequiredArgsConstructor
@@ -42,25 +44,23 @@ public class LogoutHandler implements org.springframework.security.web.authentic
             String token = authHeader.substring(AUTH_PREFIX.length());
             if (tokenService.isTokenAllowed(token)) {
                 tokenService.disallowToken(token);
-                System.out.println("token disallowed for e-mail " + jwtService.extractEmail(token));
+                log.info("token disallowed for e-mail {}", jwtService.extractEmail(token));
             } else {
-//                throw new RtsException(HttpStatus.UNAUTHORIZED, "token is disallowed!");
                 utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "token is disallowed!");
             }
             // invalidate refresh token
             Cookie clearRefreshCookie;
             String email = jwtService.extractEmail(token);
             if (customUserDetailsService.loadUserByUsername(email).getAuthorities().equals(Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
-                System.out.println("clearing admin cookies for e-mail: " + email);
+                log.info("clearing admin cookies for e-mail: {}", email);
                 clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("admin");
             } else {    // if it's a passenger
-                System.out.println("clearing cookies for passenger e-mail: " + email);
+                log.info("clearing cookies for passenger e-mail: {}", email);
                 clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("passenger");
             }
             refreshTokenRepository.deleteRefreshTokenByEmail(email);
             response.addCookie(clearRefreshCookie);
         } else {
-//            throw new RtsException(HttpStatus.BAD_REQUEST, "failed to logout!");
             utilities.handleException(response, request, HttpServletResponse.SC_BAD_REQUEST, "failed to logout!");
         }
 
@@ -68,12 +68,12 @@ public class LogoutHandler implements org.springframework.security.web.authentic
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
-            System.out.println("session invalidated for user");
+            log.info("Session invalidated for user: {}", authentication.getName());
         }
 
         // clear security context
         SecurityContextHolder.clearContext();
-        System.out.println("logout successful");
+        log.info("Logout successful");
 
     }
 }

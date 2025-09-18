@@ -2,9 +2,11 @@ package org.project.railwayticketingservice.util;
 
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CookieUtils {
@@ -25,7 +27,7 @@ public class CookieUtils {
         cookie.setMaxAge(maxAgeSeconds);
         cookie.setDomain(clientURL);  // should be set to actual client prod domain
         cookie.setAttribute("SameSite", "Strict");
-        System.out.println("cookie successfully created! " + cookie);
+        log.info("Refresh Cookie successfully created");
         return cookie;
     }
 
@@ -42,7 +44,7 @@ public class CookieUtils {
         clearedCookie.setMaxAge(0); // expires immediately
         clearedCookie.setDomain(clientURL);
         clearedCookie.setAttribute("SameSite", "Strict");
-        System.out.println("cookie successfully cleared! " + clearedCookie);
+        log.info("Refresh Cookie successfully cleared");
         return clearedCookie;
     }
 }

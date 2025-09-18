@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.app.response.HomePageResponse;
 import org.project.railwayticketingservice.dto.app.response.ReservationResponse;
 import org.project.railwayticketingservice.dto.app.response.TrainScheduleResponse;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppService {
 
     private final PassengerRepository passengerRepository;
@@ -43,6 +45,7 @@ public class AppService {
                         TrainScheduleResponse::fromSchedule
                 )
                 .toList();
+        log.info("Successfully generated homepage response");
         return ResponseEntity.ok(HomePageResponse.of(userDetailsResponse, reservationResponses, upcomingSchedulesResponse));
 
     }
@@ -51,6 +54,7 @@ public class AppService {
     public ResponseEntity<List<TrainScheduleResponse>> getUpcomingTrainSchedules() {
         List<Schedule> upcomingSchedules = scheduleRepository.findSchedulesByDepartureTimeBetween(LocalDateTime.now(), LocalDateTime.now().plusHours(1));
 
+        log.info("Successfully generated upcoming train schedules");
         return ResponseEntity.ok(upcomingSchedules.stream()
                 .map(TrainScheduleResponse::fromSchedule)
                 .toList());

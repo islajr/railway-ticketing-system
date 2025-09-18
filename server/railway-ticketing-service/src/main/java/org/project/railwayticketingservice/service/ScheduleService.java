@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.app.request.GetTrainScheduleRequest;
 import org.project.railwayticketingservice.dto.app.request.ScheduleCreationRequest;
 import org.project.railwayticketingservice.dto.app.request.ScheduleUpdateRequest;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ScheduleService {
@@ -78,12 +80,11 @@ public class ScheduleService {
                     .build();
 
             scheduleRepository.save(schedule);
-            System.out.println("schedule successfully created");
 
             // generating seats for schedule
             utilities.generateSeatsForSchedule(schedule);
-            System.out.println("seats generated");
 
+            log.info("Schedule with id: {} successfully created", schedule.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(AppResponse.builder()
                     .message("schedule successfully created.")
                     .build());
@@ -98,6 +99,7 @@ public class ScheduleService {
         if (schedule == null) {
             throw new RtsException(HttpStatus.NOT_FOUND, "Schedule not found!");
         } else {
+            log.info("Schedule with id: {} successfully retrieved", id);
             return ResponseEntity.status(HttpStatus.OK).body(
                     TrainScheduleResponse.fromSchedule(schedule)
             );
@@ -124,34 +126,35 @@ public class ScheduleService {
                 schedule.setOrigin(origin);
                 scheduleRepository.save(schedule);
                 changed = true;
-                System.out.println("updated origin for train " + id);
+                log.info("Updated origin for train {}", id);
                 // destination
             } if (!Objects.equals(request.destination(), "null") && !Objects.equals(schedule.getDestination(), destination)) {
                 schedule.setDestination(destination);
                 scheduleRepository.save(schedule);
                 changed = true;
-                System.out.println("updated destination for train " + id);
+                log.info("Updated destination for train {}", id);
             }   // departure
             if (request.departureTime() != null && !Objects.equals(request.departureTime(), schedule.getDepartureTime())) {
                 schedule.setDepartureTime(request.departureTime());
                 scheduleRepository.save(schedule);
                 changed = true;
-                System.out.println("updated departure time for train " + id);
+                log.info("Updated departure time for train {}", id);
             }   // arrival
             if (request.arrivalTime() != null && !Objects.equals(request.arrivalTime(), schedule.getArrivalTime())) {
                 schedule.setArrivalTime(request.arrivalTime());
                 scheduleRepository.save(schedule);
                 changed = true;
-                System.out.println("updated arrival time for train " + id);
+                log.info("Updated arrival time for train {}", id);
             }   // status
             if (request.status() != null && !Objects.equals(String.valueOf(request.status()), schedule.getStatus())) {
                 schedule.setStatus(String.valueOf(request.status()));
                 scheduleRepository.save(schedule);
                 changed = true;
-                System.out.println("updated status for train " + id);
+                log.info("Updated status for train {}", id);
             }
 
             if (changed) {
+                log.info("Successfully edited schedule for train {}", id);
                 return ResponseEntity.status(HttpStatus.OK).body(
                         TrainScheduleResponse.fromSchedule(schedule)
                 );
@@ -187,6 +190,8 @@ public class ScheduleService {
         }
 
         // convert schedules to proper response DTOs
+
+        log.info("Successfully retrieved {} train schedules", schedules.size());
         return ResponseEntity.status(HttpStatus.OK).body(
                 schedules.stream()
                         .map(
@@ -207,13 +212,14 @@ public class ScheduleService {
             for (ScheduleSeat seat : schedule.getSeats()) {
                 if (seat.isReserved() && seat.getReservation() != null) {
                     reservationRepository.delete(seat.getReservation());
+                    log.info("Reservation with id: {} successfully deleted", seat.getReservation().getId());
                 }
             }
 
             // delete schedule
             scheduleRepository.delete(schedule);
-            System.out.println("deleted schedule: " + schedule.getId());
 
+            log.info("Successfully deleted schedule: {}", schedule.getId());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         }

@@ -1,6 +1,7 @@
 package org.project.railwayticketingservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.dto.app.request.NewReservationRequest;
 import org.project.railwayticketingservice.dto.app.request.ReservationUpdateRequest;
 import org.project.railwayticketingservice.dto.app.response.AppResponse;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
@@ -84,6 +86,7 @@ public class ReservationService {
         seat.setReservation(reservation);
         scheduleSeatRepository.save(seat);
 
+        log.info("Reservation with id: {} created for passenger: {}", reservation.getId(), passenger.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ReservationResponse.from(reservation)
         );
@@ -99,6 +102,7 @@ public class ReservationService {
         if (reservation == null) {
             throw new RtsException(HttpStatus.NOT_FOUND, "Reservation not found!");
         } else {
+            log.info("Reservation with id: {} found", id);
             return ResponseEntity.status(HttpStatus.OK).body(
                     ReservationResponse.from(reservation)
             );
@@ -114,6 +118,8 @@ public class ReservationService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Reservation> reservations = reservationRepository.findAllReservationsByPassenger(passenger, pageable);
 
+        log.info("Successfully retrieved all reservations for passenger: {}", passenger.getEmail());
+        log.info("Reservation count: {}", reservations.getTotalElements());
         return ResponseEntity.status(HttpStatus.OK).body(
                 reservations.stream()
                         .map(ReservationResponse::from)
@@ -131,6 +137,7 @@ public class ReservationService {
         } else {
             utilities.freeUpSeat(reservation);
             reservationRepository.delete(reservation);
+            log.info("Reservation with id: {} deleted", id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservation successfully deleted")
                     .build());
@@ -148,8 +155,10 @@ public class ReservationService {
         } else {
             for (Reservation reservation : reservations) {
                 utilities.freeUpSeat(reservation);
+                log.info("Reservation with id: {} deleted", reservation.getId());
             }
             reservationRepository.deleteAll(reservations);
+            log.info("Successfully deleted all reservations for passenger: {}", passenger.getEmail());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(AppResponse.builder()
                     .message("reservations successfully deleted!")
                     .build());
@@ -183,8 +192,8 @@ public class ReservationService {
 
                     reservation.setScheduleSeat(newSeat);
                     reservationRepository.save(reservation);
-                    System.out.println("assigned new seat: " + newSeat.getLabel() + " to reservation: " + reservation.getId() + ".");
 
+                    log.info("assigned new seat: {} to reservation: {}.", newSeat.getLabel(), reservation.getId());
                     return ResponseEntity.ok(ReservationResponse.from(reservation));
                 } throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
             } throw new RtsException(HttpStatus.NOT_FOUND, "No such seat");

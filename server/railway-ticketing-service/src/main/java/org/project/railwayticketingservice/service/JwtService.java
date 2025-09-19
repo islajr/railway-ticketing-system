@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.project.railwayticketingservice.entity.AdminPrincipal;
 import org.project.railwayticketingservice.entity.PassengerPrincipal;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +68,7 @@ public class JwtService {
                 .compact();
     }
 
-    private Claims extractClaims(String token) {
+    private Claims extractClaims(String token) throws SignatureException {
         return Jwts.parser()
                 .verifyWith(generateKey())
                 .build()

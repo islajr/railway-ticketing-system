@@ -1,5 +1,6 @@
 package org.project.railwayticketingservice.security;
 
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +37,7 @@ public class LogoutHandler implements org.springframework.security.web.authentic
 
     @SneakyThrows
     @Override
+    @Transactional
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         final String authHeader = request.getHeader("Authorization");
         final String AUTH_PREFIX = "Bearer ";
@@ -44,31 +46,42 @@ public class LogoutHandler implements org.springframework.security.web.authentic
             String token = authHeader.substring(AUTH_PREFIX.length());
             if (tokenService.isTokenAllowed(token)) {
                 tokenService.disallowToken(token);
-                log.info("token disallowed for e-mail {}", jwtService.extractEmail(token));
+                log.info("token disallowed - Please refresh or login again");
             } else {
                 utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "token is disallowed!");
+                return;
             }
             // invalidate refresh token
             Cookie clearRefreshCookie;
-            String email = jwtService.extractEmail(token);
-            if (customUserDetailsService.loadUserByUsername(email).getAuthorities().equals(Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
-                log.info("clearing admin cookies for e-mail: {}", email);
-                clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("admin");
-            } else {    // if it's a passenger
-                log.info("clearing cookies for passenger e-mail: {}", email);
-                clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("passenger");
+            String email;
+
+            try {
+                email = jwtService.extractEmail(token);
+                if (customUserDetailsService.loadUserByUsername(email).getAuthorities().equals(Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")))) {
+                    log.info("clearing admin cookies for e-mail: {}", email);
+                    clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("admin");
+                } else {    // if it's a passenger
+                    log.info("clearing cookies for passenger e-mail: {}", email);
+                    clearRefreshCookie = cookieUtils.clearRefreshTokenCookie("passenger");
+                }
+                refreshTokenRepository.deleteRefreshTokenByEmail(email);
+                response.addCookie(clearRefreshCookie);
+            } catch (SignatureException e) {
+                utilities.handleException(response, request, HttpServletResponse.SC_UNAUTHORIZED, "Invalid token!");
+                return;
+            } catch (Exception e) {
+                throw new Exception("Logout Failure: Something went wrong");
             }
-            refreshTokenRepository.deleteRefreshTokenByEmail(email);
-            response.addCookie(clearRefreshCookie);
         } else {
             utilities.handleException(response, request, HttpServletResponse.SC_BAD_REQUEST, "failed to logout!");
+            return;
         }
 
         // invalidate session
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
-            log.info("Session invalidated for user: {}", authentication.getName());
+            log.info("Session invalidated");
         }
 
         // clear security context

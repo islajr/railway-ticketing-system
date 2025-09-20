@@ -84,16 +84,33 @@ public class AuthController {
         return authService.loginAdmin(request, response);
     }
 
+    @Operation(description = "This endpoint refreshes an admin's access token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully refreshed the token"),
+            @ApiResponse(responseCode = "500", description = "Error refreshing the token"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access or Invalid token"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
     @GetMapping("/admin/refresh")
     public ResponseEntity<LoginAdminResponse> refreshAdminToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
         return authService.refreshAdminToken(refreshToken, response);
     }
 
+    @Operation(description = "This endpoint refreshes a passenger's access token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully refreshed the token"),
+            @ApiResponse(responseCode = "500", description = "Error refreshing the token"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access or Invalid token"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+
+    })
     @GetMapping("/passenger/refresh")
     public ResponseEntity<LoginPassengerResponse> refreshPassengerToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletResponse response) {
         return authService.refreshPassengerToken(refreshToken, response);
     }
 
+    @Operation(description = "This endpoint receives requests to keep the API alive on Render")
     @RequestMapping("/ping")
     public void ping() {
         System.out.println("ping received!");

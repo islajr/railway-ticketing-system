@@ -35,11 +35,13 @@ public class ScheduleController {
     })
     @GetMapping("/search")
     public ResponseEntity<List<TrainScheduleResponse>> searchTrainSchedules(
-            @RequestParam String filter1,
-            @RequestParam(required = false, defaultValue = "null") String filter2,
-            @RequestParam(required = false, defaultValue = "null") String filter3,
-            @RequestBody GetTrainScheduleRequest request) {
-        return scheduleService.getTrainSchedules(filter1, filter2, filter3, request);
+            @RequestParam(required=false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "1") int size,
+            @RequestParam(required = false, defaultValue = "departureTime") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestBody GetTrainScheduleRequest request
+    ) {
+        return scheduleService.getTrainSchedules(page, size, sortBy, order, request);
     }
 
     @Operation(description = "This endpoint creates a new schedule.")

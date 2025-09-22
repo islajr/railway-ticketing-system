@@ -2,6 +2,8 @@ package org.project.railwayticketingservice.repository;
 
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.Station;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,13 +15,13 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
 
     Schedule findScheduleById(String id);
 
-    List<Schedule> findSchedulesByOrigin(Station origin);
+    Page<Schedule> findSchedulesByOrigin(Station origin, Pageable pageable);
 
-    List<Schedule> findSchedulesByDestination(Station destination);
+    Page<Schedule> findSchedulesByDestination(Station destination, Pageable pageable);
 
     List<Schedule> findSchedulesByDepartureTime(LocalDateTime departureTime);
 
-    List<Schedule> findSchedulesByOriginAndDestination(Station origin, Station destination);
+    Page<Schedule> findSchedulesByOriginAndDestination(Station origin, Station destination, Pageable pageable);
 
     List<Schedule> findSchedulesByOriginAndDepartureTime(Station origin, LocalDateTime localDateTime);
 

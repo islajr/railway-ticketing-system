@@ -17,6 +17,10 @@ import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -61,8 +65,8 @@ public class ScheduleService {
         }
 
         // convert to station
-        Station origin = stationRepository.findStationByName(request.origin());
-        Station destination = stationRepository.findStationByName(request.destination());
+        Station origin = stationRepository.findStationByName(request.origin()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Provided origin does not exist"));
+        Station destination = stationRepository.findStationByName(request.destination()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Provided destination does not exist"));
 
         if (origin == null || destination == null) {
             throw new RtsException(HttpStatus.BAD_REQUEST, "Please input a valid station");
@@ -108,8 +112,8 @@ public class ScheduleService {
 
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
-        Station origin = stationRepository.findStationByName(request.origin());
-        Station destination = stationRepository.findStationByName(request.destination());
+        Station origin;
+        Station destination;
 
         if (schedule == null) {
             throw new RtsException(HttpStatus.NOT_FOUND, "Schedule not found!");
@@ -122,19 +126,26 @@ public class ScheduleService {
             boolean changed = false;
 
             // origin
-            if (!Objects.equals(request.origin(), "null") && !Objects.equals(schedule.getOrigin(), origin)) {
-                schedule.setOrigin(origin);
-                scheduleRepository.save(schedule);
-                changed = true;
-                log.info("Updated origin for train {}", id);
-                // destination
-            } if (!Objects.equals(request.destination(), "null") && !Objects.equals(schedule.getDestination(), destination)) {
-                schedule.setDestination(destination);
-                scheduleRepository.save(schedule);
-                changed = true;
-                log.info("Updated destination for train {}", id);
+            if (!Objects.equals(request.origin(), "null")) {
+                origin = stationRepository.findStationByName(request.origin()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Provided origin does not exist"));
+                if (!Objects.equals(schedule.getOrigin(), origin)) {
+                    schedule.setOrigin(origin);
+                    scheduleRepository.save(schedule);
+                    changed = true;
+                    log.info("Updated origin for train {}", id);
+                }
+                
+            }   // destination 
+            if (!Objects.equals(request.destination(), "null")) {
+                destination = stationRepository.findStationByName(request.destination()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Provided destination does not exist"));
+                if (!Objects.equals(schedule.getDestination(), destination)) {
+                    schedule.setDestination(destination);
+                    scheduleRepository.save(schedule);
+                    changed = true;
+                    log.info("Updated destination for train {}", id);
+                }
             }   // departure
-            if (request.departureTime() != null && !Objects.equals(request.departureTime(), schedule.getDepartureTime())) {
+            /* if (request.departureTime() != null && !Objects.equals(request.departureTime(), schedule.getDepartureTime())) {
                 schedule.setDepartureTime(request.departureTime());
                 scheduleRepository.save(schedule);
                 changed = true;
@@ -145,7 +156,7 @@ public class ScheduleService {
                 scheduleRepository.save(schedule);
                 changed = true;
                 log.info("Updated arrival time for train {}", id);
-            }   // status
+            }   // status */
             if (request.status() != null && !Objects.equals(String.valueOf(request.status()), schedule.getStatus())) {
                 schedule.setStatus(String.valueOf(request.status()));
                 scheduleRepository.save(schedule);
@@ -166,32 +177,34 @@ public class ScheduleService {
 
     }
 
-    public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(String filter1, String filter2, String filter3, GetTrainScheduleRequest request) {
-        List<Schedule> schedules;
-        Station origin = stationRepository.findStationByName(request.origin());
-        Station destination = stationRepository.findStationByName(request.destination());
+    public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(int page, int size, String sortBy, String order, GetTrainScheduleRequest request) {
 
-        if (filter3.equals("null")) {   // if filter3 is null
+        Sort sort = order.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-            // check filter2
-            if (filter2.equals("null")) {   // if filter2 is null
+        Page<Schedule> schedules;
+        Station origin;
+        Station destination;
 
-                if (!filter1.equals("null")) {
-                    schedules = utilities.getSchedules(filter1, request);
-                } else {
-                    throw new RtsException(HttpStatus.BAD_REQUEST, "Filters cannot be null!");
-                }
+        if (request.origin() != null && request.destination() != null) {  // search by origin and destination
+            origin = stationRepository.findStationByName(request.destination()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "requested origin does not exist"));
+            destination = stationRepository.findStationByName(request.destination()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "requested destination does not exist"));
+            schedules = scheduleRepository.findSchedulesByOriginAndDestination(origin, destination, pageable);
+        } else if (request.origin() == null && request.destination() != null) {   // search only by destination
+            destination = stationRepository.findStationByName(request.destination()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "requested destination does not exist"));
+            schedules = scheduleRepository.findSchedulesByDestination(destination, pageable);
 
-            } else {
-                schedules = utilities.getSchedules(filter1, filter2, request);
-            }
-        } else {
-            schedules = scheduleRepository.findSchedulesByOriginAndDestinationAndDepartureTime(origin, destination, request.time());
+        } else if (request.origin() != null) {   // search only by origin
+            origin = stationRepository.findStationByName(request.origin()).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "requested origin does not exist"));
+            schedules = scheduleRepository.findSchedulesByOrigin(origin, pageable);
+
+        } else {    // search by nothing?
+            throw new RtsException(HttpStatus.BAD_REQUEST, "no filters specified");
         }
 
         // convert schedules to proper response DTOs
 
-        log.info("Successfully retrieved {} train schedules", schedules.size());
+        log.info("Successfully retrieved {} train schedules", schedules.getTotalElements());
         return ResponseEntity.status(HttpStatus.OK).body(
                 schedules.stream()
                         .map(

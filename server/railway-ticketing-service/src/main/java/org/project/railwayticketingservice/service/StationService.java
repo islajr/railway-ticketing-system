@@ -8,11 +8,14 @@ import org.project.railwayticketingservice.dto.app.response.StationResponse;
 import org.project.railwayticketingservice.entity.Station;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.StationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,20 +92,23 @@ public class StationService {
 
     }
 
-    public ResponseEntity<List<StationResponse>> getAllStations() {
+    public ResponseEntity<List<StationResponse>> getAllStations(int page, int size, String sortBy, String direction) {
 
-        List<Station> stations = stationRepository.findAll();
+        Sort sort = direction.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Station> stations = stationRepository.findAll(pageable);
 
         if (stations.isEmpty()) {
             log.warn("No stations found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        List<StationResponse> stationResponses = new ArrayList<>();
+        List<StationResponse> stationResponses;
 
-        for (Station station : stations) {
-            stationResponses.add(StationResponse.from(station));
-        }
+        stationResponses = stations.stream()
+                        .map(StationResponse::from)
+                                .toList();
 
         log.info("Successfully retrieved {} stations", stationResponses.size());
         return ResponseEntity.status(HttpStatus.OK).body(stationResponses);

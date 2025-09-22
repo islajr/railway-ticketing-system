@@ -8,6 +8,10 @@ import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.entity.Train;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.TrainRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -87,8 +91,12 @@ public class TrainService {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    public ResponseEntity<List<NewTrainResponse>> getAllTrains() {
-        List<Train> trains = trainRepository.findAll();
+    public ResponseEntity<List<NewTrainResponse>> getAllTrains(int page, int size, String sortBy, String direction) {
+        
+        Sort sort = direction.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Train> trains = trainRepository.findAll(pageable);
 
         if (trains.isEmpty()) {
             log.warn("Train list is empty");

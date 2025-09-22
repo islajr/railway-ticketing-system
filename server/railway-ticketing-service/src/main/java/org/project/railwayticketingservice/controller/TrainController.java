@@ -60,8 +60,13 @@ public class TrainController {
 
     })
     @GetMapping("")
-    public ResponseEntity<List<NewTrainResponse>> getAllTrains() {
-        return trainService.getAllTrains();
+    public ResponseEntity<List<NewTrainResponse>> getAllTrains(
+        @RequestParam(required = false, defaultValue = "0") int page,
+        @RequestParam(required = false, defaultValue = "10") int size,
+        @RequestParam(required = false, defaultValue = "name") String sortBy,
+        @RequestParam(required = false, defaultValue = "asc") String direction
+    ) {
+        return trainService.getAllTrains(page, size, sortBy, direction);
     }
 
     @Operation(description = "This endpoint edits a given train.")

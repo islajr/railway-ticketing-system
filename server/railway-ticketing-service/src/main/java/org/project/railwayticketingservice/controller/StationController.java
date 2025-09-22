@@ -88,7 +88,12 @@ public class StationController {
 
     })
     @GetMapping("")
-    public ResponseEntity<List<StationResponse>> getAllStations() {
-        return stationService.getAllStations();
+    public ResponseEntity<List<StationResponse>> getAllStations(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @RequestParam(required = false, defaultValue = "code") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String direction
+    ) {
+        return stationService.getAllStations(page, size, sortBy, direction);
     }
 }

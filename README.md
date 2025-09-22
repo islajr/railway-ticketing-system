@@ -2,7 +2,7 @@
 
 This is a RESTful web service that allows users to search for train schedules, reserve tickets, and manage their reservations.
 
-Full documenation available at: https://documenter.getpostman.com/view/34198518/2sB3BAMsWh
+<!-- Full documenation available at: https://documenter.getpostman.com/view/34198518/2sB3BAMsWh -->
 
 
 ## Value provided

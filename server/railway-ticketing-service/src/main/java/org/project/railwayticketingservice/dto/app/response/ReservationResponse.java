@@ -2,6 +2,7 @@ package org.project.railwayticketingservice.dto.app.response;
 
 import lombok.Builder;
 import org.project.railwayticketingservice.entity.Reservation;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 
@@ -11,16 +12,20 @@ public record ReservationResponse(
         String train,
         String seatNumber,
         String origin,
-        LocalDateTime time
+        LocalDateTime time,
+        int page,
+        int total
 
 ) {
-    public static ReservationResponse from(Reservation reservation) {
+    public static ReservationResponse from(Reservation reservation, Page<Reservation> reservations) {
         return ReservationResponse.builder()
                 .reservationId(reservation.getId())
                 .train(reservation.getSchedule().getTrain().getName())
                 .seatNumber(reservation.getScheduleSeat().getLabel())
                 .origin(reservation.getSchedule().getOrigin().getName())
                 .time(reservation.getSchedule().getArrivalTime())
+                .total(reservations != null ? reservations.getTotalPages() : 1)
+                .page(reservations != null ? reservations.getNumber() + 1 : 1)
                 .build();
     }
 }

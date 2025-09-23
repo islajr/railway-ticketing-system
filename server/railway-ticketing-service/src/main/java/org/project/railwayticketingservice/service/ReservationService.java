@@ -88,7 +88,7 @@ public class ReservationService {
 
         log.info("Reservation with id: {} created for passenger: {}", reservation.getId(), passenger.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ReservationResponse.from(reservation)
+                ReservationResponse.from(reservation, null)
         );
 
     }
@@ -104,7 +104,7 @@ public class ReservationService {
         } else {
             log.info("Reservation with id: {} found", id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    ReservationResponse.from(reservation)
+                    ReservationResponse.from(reservation, null)
             );
 
         }
@@ -122,7 +122,7 @@ public class ReservationService {
         log.info("Reservation count: {}", reservations.getTotalElements());
         return ResponseEntity.status(HttpStatus.OK).body(
                 reservations.stream()
-                        .map(ReservationResponse::from)
+                        .map(reservation -> ReservationResponse.from(reservation, reservations))
                         .toList()
         );
     }
@@ -194,7 +194,7 @@ public class ReservationService {
                     reservationRepository.save(reservation);
 
                     log.info("assigned new seat: {} to reservation: {}.", newSeat.getLabel(), reservation.getId());
-                    return ResponseEntity.ok(ReservationResponse.from(reservation));
+                    return ResponseEntity.ok(ReservationResponse.from(reservation, null));
                 } throw new RtsException(HttpStatus.CONFLICT, "Seat is already taken!");
             } throw new RtsException(HttpStatus.NOT_FOUND, "No such seat");
         } throw new RtsException(HttpStatus.BAD_REQUEST, "nothing to update");

@@ -3,6 +3,7 @@ package org.project.railwayticketingservice.dto.app.response;
 import lombok.Builder;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,9 +20,11 @@ public record TrainScheduleResponse(
     String destination,
     String status,
     LocalDateTime departureTime,
-    LocalDateTime arrivalTime
+    LocalDateTime arrivalTime,
+    int page,
+    int total
 ) {
-    public static TrainScheduleResponse fromSchedule(Schedule schedule) {
+    public static TrainScheduleResponse fromSchedule(Schedule schedule, Page<Schedule> schedules) {
         return TrainScheduleResponse.builder()
                 .scheduleId(schedule.getId())
                 .train(schedule.getTrain().getName())
@@ -36,6 +39,8 @@ public record TrainScheduleResponse(
                 .departureTime(schedule.getDepartureTime())
                 .arrivalTime(schedule.getArrivalTime())
                 .status(schedule.getStatus())
+                .page(schedules != null ? schedules.getNumber() + 1 : 1)
+                .total(schedules != null ? schedules.getTotalPages() : 1)
                 .build();
     }
 }

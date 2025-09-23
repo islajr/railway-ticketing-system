@@ -38,12 +38,10 @@ public class AppService {
         /* response prepping */
         UserDetailsResponse userDetailsResponse = UserDetailsResponse.from(passenger);
         List<ReservationResponse> reservationResponses = reservations.stream()
-                .map(ReservationResponse::from)
+                .map(reservation -> ReservationResponse.from(reservation, null))
                 .toList();
         List<TrainScheduleResponse> upcomingSchedulesResponse = upcomingSchedules.stream()
-                .map(
-                        TrainScheduleResponse::fromSchedule
-                )
+                .map(schedule -> TrainScheduleResponse.fromSchedule(schedule, null))
                 .toList();
         log.info("Successfully generated homepage response");
         return ResponseEntity.ok(HomePageResponse.of(userDetailsResponse, reservationResponses, upcomingSchedulesResponse));
@@ -56,7 +54,7 @@ public class AppService {
 
         log.info("Successfully generated upcoming train schedules");
         return ResponseEntity.ok(upcomingSchedules.stream()
-                .map(TrainScheduleResponse::fromSchedule)
+                .map(schedule -> TrainScheduleResponse.fromSchedule(schedule, null))
                 .toList());
     }
 }

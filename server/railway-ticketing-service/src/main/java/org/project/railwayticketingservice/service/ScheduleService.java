@@ -105,7 +105,7 @@ public class ScheduleService {
         } else {
             log.info("Schedule with id: {} successfully retrieved", id);
             return ResponseEntity.status(HttpStatus.OK).body(
-                    TrainScheduleResponse.fromSchedule(schedule)
+                    TrainScheduleResponse.fromSchedule(schedule, null)
             );
         }
     }
@@ -167,7 +167,7 @@ public class ScheduleService {
             if (changed) {
                 log.info("Successfully edited schedule for train {}", id);
                 return ResponseEntity.status(HttpStatus.OK).body(
-                        TrainScheduleResponse.fromSchedule(schedule)
+                        TrainScheduleResponse.fromSchedule(schedule, null)
                 );
             } else {
                 throw new RtsException(HttpStatus.NOT_MODIFIED, "Nothing to update!");
@@ -208,7 +208,7 @@ public class ScheduleService {
         return ResponseEntity.status(HttpStatus.OK).body(
                 schedules.stream()
                         .map(
-                                TrainScheduleResponse::fromSchedule
+                                schedule -> TrainScheduleResponse.fromSchedule(schedule, schedules)
                         )
                         .toList()
         );

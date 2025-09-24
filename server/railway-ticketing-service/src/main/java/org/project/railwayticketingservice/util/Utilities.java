@@ -1,10 +1,14 @@
 package org.project.railwayticketingservice.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.project.railwayticketingservice.entity.Reservation;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.ScheduleSeat;
@@ -13,12 +17,12 @@ import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,6 +83,40 @@ public class Utilities {
         log.error(errorDetails.toString());
         response.getWriter().write(new ObjectMapper().writeValueAsString(errorDetails));
         response.getWriter().flush();
+    }
+
+    public List<String> fileReader(String path, String subject) {
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(path))) {
+            String line;
+            List<String> dataList = new ArrayList<>();
+            if (subject.equals("station")) {
+                log.info("Reading data for stations");
+                while ((line = reader.readLine()) != null) {
+                    log.info("Station: Read data: {}", line);
+                    dataList.add(line);
+                }
+            } else if (subject.equals("train")) {
+                log.info("Reading data for trains");
+                String code;
+                while ((line = reader.readLine()) != null) {
+                    log.info("Train: Read data: {}", line);
+                    code = line.split(",")[1];  // code should be the second csv in the file
+                    log.info("Train: Extracted code: {}", code);
+                    dataList.add(code);
+                }
+
+            } else {
+                log.error("Failed to read data: Unknown subject");
+                throw new IOException("Failed to read data: Unknown subject");
+            }
+
+            log.info("Successfully read {} lines of data", dataList.size());
+            return dataList;
+        } catch (IOException e) {
+            log.error("Error reading file: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
 

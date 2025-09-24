@@ -154,8 +154,8 @@ public class Utilities {
             two = ThreadLocalRandom.current().nextInt(stations.size() - 1);
         }
 
-        List<Station> stationsList = stations.stream()
-                .toList();
+        List<Station> stationsList = new ArrayList<>(stations.stream()
+                .toList());
 
         Station origin = stationsList.get(one);
         Station destination = stationsList.get(two);

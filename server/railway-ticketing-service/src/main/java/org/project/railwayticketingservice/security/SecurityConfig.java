@@ -53,7 +53,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/rts/app/schedule/new",
                                 "/api/v1/rts/app/station/new",
-                                "/api/v1/rts/app/train/new").hasRole("ADMIN")
+                                "/api/v1/rts/app/train/new",
+                                "/api/v1/rts/app/train/populate",
+                                "/api/v1/rts/app/station/populate").hasRole("ADMIN")
 
                         // UPDATE
                         .requestMatchers(HttpMethod.PATCH,

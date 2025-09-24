@@ -1,28 +1,24 @@
 package org.project.railwayticketingservice.util;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.project.railwayticketingservice.entity.Reservation;
-import org.project.railwayticketingservice.entity.Schedule;
-import org.project.railwayticketingservice.entity.ScheduleSeat;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.project.railwayticketingservice.entity.*;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -117,6 +113,60 @@ public class Utilities {
             log.error("Error reading file: {}", e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public Map<String, Train> updateFreeTrainCache(Map<String, Train> trainCache, LocalDateTime now) {
+        Map<String, Train> freeTrainsCache = new ConcurrentHashMap<>();
+        
+
+        for (Train train : trainCache.values()) {
+            List<Schedule> trainSchedules = train.getSchedules();
+            
+            if (!trainSchedules.isEmpty()) {
+                for (Schedule schedule : trainSchedules) {
+                    if (schedule.getDepartureTime().equals(now)) {
+                        log.info("Schedule Refresher: IGNORE - Schedule Conflict on train:  {} for departure time: {}", train.getName(), schedule.getDepartureTime());
+                    } else {
+                        log.info("Schedule Refresher: Adding train: {} to the Free Trains Cache for departure time: {}", train.getName(), schedule.getDepartureTime());
+                        freeTrainsCache.put(train.getName(), train);
+                    }
+                }
+            } else {
+                log.info("Schedule Refresher: Adding free train: {} with no schedules to the Free Trains Cache");
+                freeTrainsCache.put(train.getName(), train);
+            }
+         }
+
+         return freeTrainsCache;
+    }
+
+    /* *
+     * return two unique stations: origin and destination
+     */
+    public List<Station> randomStationPick(Collection<Station> stations) {
+        // generate two random numbers within the range of 'stations' size
+
+        int one = 0;
+        int two = 0;
+
+        while (one == two) {
+            one = ThreadLocalRandom.current().nextInt(stations.size() - 1);
+            two = ThreadLocalRandom.current().nextInt(stations.size() - 1);
+        }
+
+        List<Station> stationsList = stations.stream()
+                .toList();
+
+        Station origin = stationsList.get(one);
+        Station destination = stationsList.get(two);
+
+        log.info("Schedule Refresher: Randomly selected origin: {} and destination: {}", origin.getName(), destination.getName());
+
+        stationsList.clear();
+        stationsList.add(origin);
+        stationsList.add(destination);
+        return stationsList;
+
     }
 
 

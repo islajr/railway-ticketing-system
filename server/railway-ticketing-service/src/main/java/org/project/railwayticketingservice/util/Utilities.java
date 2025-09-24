@@ -132,7 +132,7 @@ public class Utilities {
                     }
                 }
             } else {
-                log.info("Schedule Refresher: Adding free train: {} with no schedules to the Free Trains Cache");
+                log.info("Schedule Refresher: Adding free train: {} with no schedules to the Free Trains Cache", train.getName());
                 freeTrainsCache.put(train.getName(), train);
             }
          }

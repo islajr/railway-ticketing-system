@@ -1,7 +1,10 @@
 package org.project.railwayticketingservice.task;
 
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.Station;
 import org.project.railwayticketingservice.entity.Train;
@@ -13,10 +16,8 @@ import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -136,6 +137,7 @@ public class ScheduleTasks {
          freeTrainsCache = utilities.updateFreeTrainCache(trainCache, now); // update free train cache
 
          List<Station> randomStations;
+         now = now.plusDays(1);
          for (Train train : freeTrainsCache.values()) {
             log.info("Schedule Refresher: Selecting random stations for schedule origin and destination");
             randomStations = utilities.randomStationPick(stationCache.values());
@@ -148,6 +150,7 @@ public class ScheduleTasks {
              .destination(randomStations.getLast())
              .departureTime(now)
              .arrivalTime(randomStations.getFirst().getLGA().equals(randomStations.getLast().getLGA()) ? now.plusMinutes(15) : now.plusMinutes(30))
+             .status(String.valueOf(Status.NOT_STARTED))
              .build();
 
              scheduleRepository.save(schedule);

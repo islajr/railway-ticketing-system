@@ -1,24 +1,34 @@
 package org.project.railwayticketingservice.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.project.railwayticketingservice.entity.*;
-import org.project.railwayticketingservice.repository.ScheduleRepository;
-import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.project.railwayticketingservice.entity.Reservation;
+import org.project.railwayticketingservice.entity.Schedule;
+import org.project.railwayticketingservice.entity.ScheduleSeat;
+import org.project.railwayticketingservice.entity.Station;
+import org.project.railwayticketingservice.entity.Train;
+import org.project.railwayticketingservice.repository.ScheduleRepository;
+import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -124,8 +134,10 @@ public class Utilities {
             
             if (!trainSchedules.isEmpty()) {
                 for (Schedule schedule : trainSchedules) {
-                    if (schedule.getDepartureTime().equals(now)) {
+                    if (schedule.getDepartureTime().equals(now.plusDays(1))) {
                         log.info("Schedule Refresher: IGNORE - Schedule Conflict on train:  {} for departure time: {}", train.getName(), schedule.getDepartureTime());
+                    } else if (schedule.getArrivalTime().isAfter(now.plusDays(1))) {
+                        log.info("Schedule Refresher: IGNORE - Conflict: train: {} is not available for this session", train.getName());
                     } else {
                         log.info("Schedule Refresher: Adding train: {} to the Free Trains Cache for departure time: {}", train.getName(), schedule.getDepartureTime());
                         freeTrainsCache.put(train.getName(), train);

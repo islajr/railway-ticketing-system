@@ -8,6 +8,9 @@ import org.project.railwayticketingservice.dto.app.response.StationResponse;
 import org.project.railwayticketingservice.entity.Station;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.StationRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ public class StationService {
 
     private final StationRepository stationRepository;
 
+    @Cacheable(value = "stations")
     public ResponseEntity<StationResponse> createStation(NewStationRequest request) {
 
         if (stationRepository.existsByName(request.name())) {
@@ -43,6 +47,7 @@ public class StationService {
         }
     }
 
+    @CacheEvict(value = "stations", key = "#id")
     public ResponseEntity<StationResponse> deleteStation(Long stationId) {
         Station station = stationRepository.findById(stationId).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Station with id " + stationId + " does not exist"));
 
@@ -52,6 +57,7 @@ public class StationService {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @CachePut(value = "stations", key = "#id")
     public ResponseEntity<StationResponse> updateStation(Long id, StationUpdateRequest request) {
 
         /* updatable station attributes:
@@ -84,6 +90,7 @@ public class StationService {
         );
     }
 
+    @Cacheable(value = "stations", key = "#id")
     public ResponseEntity<StationResponse> getStation(Long id) {
         Station station = stationRepository.findById(id).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Station not found"));
 
@@ -92,6 +99,7 @@ public class StationService {
 
     }
 
+    @Cacheable(value = "stations")
     public ResponseEntity<List<StationResponse>> getAllStations(int page, int size, String sortBy, String direction) {
 
         Sort sort = direction.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();

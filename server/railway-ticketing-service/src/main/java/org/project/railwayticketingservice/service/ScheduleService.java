@@ -17,6 +17,8 @@ import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.StationRepository;
 import org.project.railwayticketingservice.repository.TrainRepository;
 import org.project.railwayticketingservice.util.Utilities;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,7 @@ public class ScheduleService {
     private final Utilities utilities;
 
     // admin-specific method
+    @Cacheable(value = "schedules")
     public ResponseEntity<AppResponse> createSchedule(ScheduleCreationRequest request) {
         Train train = trainRepository.findTrainByName(request.train()).orElseThrow(
                 () -> new RtsException(HttpStatus.BAD_REQUEST, "Schedule creation failed! No such train"));
@@ -97,6 +100,7 @@ public class ScheduleService {
 
     }
 
+    @Cacheable(value = "schedules", key = "#id")
     public ResponseEntity<TrainScheduleResponse> getTrainSchedule(String id) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 
@@ -110,6 +114,7 @@ public class ScheduleService {
         }
     }
 
+    @Cacheable(value = "schedules", key = "#id")
     public ResponseEntity<TrainScheduleResponse> editTrainSchedule(String id, ScheduleUpdateRequest request) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
         Station origin;
@@ -176,7 +181,7 @@ public class ScheduleService {
         }
 
     }
-
+    @Cacheable(value = "schedules")
     public ResponseEntity<List<TrainScheduleResponse>> getTrainSchedules(int page, int size, String sortBy, String order, GetTrainScheduleRequest request) {
 
         Sort sort = order.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
@@ -214,6 +219,7 @@ public class ScheduleService {
         );
     }
 
+    @CacheEvict(value = "schedules", key = "#id")
     public ResponseEntity<AppResponse> deleteTrainSchedule(String id) {
         Schedule schedule = scheduleRepository.findScheduleById(id);
 

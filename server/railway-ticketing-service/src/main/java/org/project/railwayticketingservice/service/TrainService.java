@@ -8,6 +8,9 @@ import org.project.railwayticketingservice.dto.app.response.NewTrainResponse;
 import org.project.railwayticketingservice.entity.Train;
 import org.project.railwayticketingservice.exception.exceptions.RtsException;
 import org.project.railwayticketingservice.repository.TrainRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ public class TrainService {
     private final TrainRepository trainRepository;
 
     // admin-specific method
+    @Cacheable(value = "trains")
     public ResponseEntity<NewTrainResponse> createNewTrain(NewTrainRequest newTrainRequest) {
         if (trainRepository.existsByName(newTrainRequest.name())) {
             throw new RtsException(HttpStatus.CONFLICT, "train name already exists!");
@@ -47,6 +51,7 @@ public class TrainService {
         }
     }
 
+    @Cacheable(value = "trains", key = "#id")
     public ResponseEntity<NewTrainResponse> getTrain(String id) {
         Train train = trainRepository.findTrainById(Long.getLong(id)).orElseThrow(
                 () -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!")
@@ -58,6 +63,7 @@ public class TrainService {
         );
     }
 
+    @CachePut(value = "trains", key = "#id")
     public ResponseEntity<NewTrainResponse> updateTrain(String id, TrainUpdateRequest request) {
         /* update-able attributes for now include:
         *
@@ -83,6 +89,7 @@ public class TrainService {
                 NewTrainResponse.from(train));
     }
 
+    @CacheEvict(value = "trains", key = "#id")
     public ResponseEntity<NewTrainResponse> removeTrain(String id) {    // cross-check method during testing
         Train train = trainRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RtsException(HttpStatus.NOT_FOUND, "Train not found!"));
 
@@ -91,6 +98,7 @@ public class TrainService {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    @Cacheable(value = "#trains")
     public ResponseEntity<List<NewTrainResponse>> getAllTrains(int page, int size, String sortBy, String direction) {
         
         Sort sort = direction.equals("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();

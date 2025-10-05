@@ -1,5 +1,6 @@
 package org.project.railwayticketingservice.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import java.time.Duration;
 
 @EnableCaching
 @Configuration
+@Slf4j
 public class CacheConfig {
 
     @Value("${spring.data.redis.host}")
@@ -32,6 +34,9 @@ public class CacheConfig {
 
     @Bean
     public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+
+        log.info("Initializing default Redis Cache Manager");
+
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair

@@ -13,9 +13,6 @@ import org.project.railwayticketingservice.repository.ReservationRepository;
 import org.project.railwayticketingservice.repository.ScheduleRepository;
 import org.project.railwayticketingservice.repository.ScheduleSeatRepository;
 import org.project.railwayticketingservice.util.Utilities;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -96,7 +93,6 @@ public class ReservationService {
 
     }
 
-    @Cacheable(value = "reservations", key = "#id")
     public ResponseEntity<ReservationResponse> getReservation(String id) {
 
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
@@ -114,7 +110,6 @@ public class ReservationService {
         }
     }
 
-    @Cacheable(value = "reservations")
     public ResponseEntity<List<ReservationResponse>> getAllReservations(int page, int size, String sortBy, String direction) {
 
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
@@ -132,7 +127,6 @@ public class ReservationService {
         );
     }
 
-    @CacheEvict(value = "reservations", key = "#id")
     public ResponseEntity<AppResponse> deleteReservation(String id) {
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
@@ -150,7 +144,6 @@ public class ReservationService {
         }
     }
 
-    @CacheEvict(value = "reservations", allEntries = true)
     public ResponseEntity<AppResponse> deleteAllReservations() {
         String email = ((PassengerPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
         Passenger passenger = passengerRepository.findPassengerByEmail(email);
@@ -172,7 +165,6 @@ public class ReservationService {
         }
     }
 
-    @CachePut(value = "reservations", key = "#id")
     public ResponseEntity<ReservationResponse> updateReservation(String id, ReservationUpdateRequest request) {
 
         /* allow passengers to change their selected seats for a start. */

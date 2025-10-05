@@ -181,5 +181,22 @@ public class Utilities {
 
     }
 
+    public List<Schedule> getOngoingSchedules(Map<String, Schedule> scheduleCache, LocalDateTime now) {
+        List<Schedule> ongoingSchedules = new ArrayList<>();
+
+        scheduleCache.forEach((key, value) -> {
+            if (isOnging(value)) {
+                ongoingSchedules.add(value);
+            }
+        });
+
+        return ongoingSchedules;
+    }
+
+    boolean isOnging(Schedule schedule) {
+        return schedule.getDepartureTime().isBefore(LocalDateTime.now())
+                && schedule.getArrivalTime().isAfter(LocalDateTime.now())
+                && schedule.getStatus().equals("NOT_STARTED");
+    }
 
 }

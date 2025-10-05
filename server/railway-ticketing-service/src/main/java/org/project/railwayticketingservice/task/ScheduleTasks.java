@@ -1,10 +1,7 @@
 package org.project.railwayticketingservice.task;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.project.railwayticketingservice.entity.Schedule;
 import org.project.railwayticketingservice.entity.Station;
 import org.project.railwayticketingservice.entity.Train;
@@ -16,8 +13,10 @@ import org.project.railwayticketingservice.util.Utilities;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -39,6 +38,8 @@ public class ScheduleTasks {
     Map<String, Station> stationCache = new ConcurrentHashMap<>();
     Map<String, Train> trainCache = new ConcurrentHashMap<>();
     Map<String, Train> freeTrainsCache = new ConcurrentHashMap<>();
+    Map<String, Schedule> dailySchedules = new ConcurrentHashMap<>();
+    Map<String, Schedule> ongoingSchedulesCache = new ConcurrentHashMap<>();
 
     /* scheduled task to mark started train tasks as 'STARTED' */
     @Scheduled(fixedRateString = "${schedule.status.scanner.interval:60000}")   // runs every minute
@@ -48,14 +49,17 @@ public class ScheduleTasks {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeBeforeAndStatus(now, String.valueOf(Status.NOT_STARTED));
+        List<Schedule> schedules = utilities.getOngoingSchedules(dailySchedules, now);
 
         if (!schedules.isEmpty()) {
             for (Schedule schedule : schedules) {
                 schedule.setStatus(String.valueOf(Status.STARTED));
+                ongoingSchedulesCache.put(schedule.getId(), schedule);
+                dailySchedules.replace(schedule.getId(), schedule);     // update the original cache
             }
-            scheduleRepository.saveAll(schedules);
-            log.info("TASK: Marked " + schedules.size() + " schedules as 'started' at " + now);
+
+            scheduleRepository.saveAll(schedules);  // write the changes to db to ensure idempotency.
+            log.info("TASK: Marked {} schedules 'started' as at {} ", schedules.size(), now);
         } else {
             log.info("TASK: *** 'status starter' task stopped ***");
         }
@@ -69,27 +73,44 @@ public class ScheduleTasks {
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Schedule> schedules = scheduleRepository.findSchedulesByArrivalTimeBeforeAndStatus(now, String.valueOf(Status.STARTED));
-
-        if (!schedules.isEmpty()) {
-            for (Schedule schedule : schedules) {
-                schedule.setStatus(String.valueOf(Status.COMPLETED));
+        ongoingSchedulesCache.forEach((id, schedule) -> {
+            if (schedule.getArrivalTime().isBefore(now)) {
+                schedule.setStatus("COMPLETED");
+                dailySchedules.replace(schedule.getId(), schedule);     // update original cache
+                scheduleRepository.save(schedule);  // persist to db for consistency
+                log.info("Status Completer: Marked schedule {} as completed", schedule.getId());
             }
-            scheduleRepository.saveAll(schedules);
-            log.info("TASK: *** Marked " + schedules.size() + " schedules as 'completed' at " + now + " ***");
-        } else {
-            log.info("TASK: *** 'status completer' task stopped ***");
-        }
+        });
+
+        log.info("TASK: *** 'status completer' task stopped ***");
     }
 
-    /* task to periodically refresh train and station cache for the day - runs every day at midnight */
-   @Scheduled(cron = "0 0 0 * * *") // everyday at midnight
-    protected void cacheUpdater() {
+    /* task to periodically refresh schedule, train and station caches for the day - runs every day at midnight */
+    @Scheduled(cron = "0 0 0 * * *") // everyday at midnight
+    public void cacheUpdater() {
         log.info("TASK: *** 'Cache Updater' task started ***");
+        LocalDateTime now = LocalDateTime.now();
 
-        log.info("Cache Updater: Querying DB for stations and trains");
+        log.info("Cache Updater: Querying DB for train stations");
         List<Station> stations = stationRepository.findAll();
+
+        log.info("Cache Updater: Querying DB for trains");
         List<Train> trains = trainRepository.findAll();
+
+        log.info("Cache Updater: Querying DB for schedules for the day");
+        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureTimeBetween(now, now.plusHours(24));
+
+        if (!schedules.isEmpty()) {
+            log.info("Cache Updater: Updating schedules cache");
+            dailySchedules.clear();     // empty cache initially
+            for (Schedule schedule : schedules) {
+                dailySchedules.put(schedule.getId(), schedule);
+            }
+
+            log.info("Cache Updater: Successfully updated schedules cache");
+        } else {
+            log.warn("Cache Updater: Nothing to update - No schedules for the day");
+        }
 
         if (!stations.isEmpty()) {
             log.info("Cache Updater: Updating station cache");
@@ -98,6 +119,8 @@ public class ScheduleTasks {
             }
 
             log.info("Cache Updater: Successfully updated station cache");
+        } else {
+            log.warn("Cache Updater: Nothing to update - No stations found");
         }
 
         if (!trains.isEmpty()) {
@@ -107,12 +130,14 @@ public class ScheduleTasks {
             }
 
             log.info("Cache Updater: Successfully updated train cache");
+        } else {
+            log.warn("Cache Updater: Nothing to update - No trains found");
         }
 
         log.info("TASK: *** 'Cache Updater' task completed");
     }
 
-    /* task to intermittently (hourly) create new train schedules */
+    /* task to intermittently create new train schedules */
     @Transactional
     @Scheduled(cron="0 0/15 * * * *") // every 15 minutes
     protected void scheduleRefresher() {

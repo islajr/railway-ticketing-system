@@ -36,6 +36,3 @@ build/
 Dockerfile-dev
 docker-compose-dev.yml
 
-### Seeding file ###
-station-list.csv
-

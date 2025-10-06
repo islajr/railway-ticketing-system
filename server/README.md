@@ -2,7 +2,7 @@
 
 This is a REST API that helps users search for train schedules, make reservations and manage them.
 
-The detailed documenation available at: <https://documenter.getpostman.com/view/34198518/2sB3BAMsWh>
+<!-- The detailed documenation available at: <https://documenter.getpostman.com/view/34198518/2sB3BAMsWh> -->
 
 ## Included Features
 
